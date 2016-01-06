@@ -317,6 +317,46 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 	}
 
 	var loginNavBar = function(page){
+		(function(){
+		    if(screen.width <= 600){
+		        // put mobile html/dropdown menu here  insert this code into .js page, then place div1 markers for html switch
+		        $(".main-nav").html(
+		        '<nav id="primary_nav_wrap"> \
+				<ul> \
+				  <li class="current-menu-item"><a href="#">Game</a></li> \
+				  <li><a href="#">Menu 1</a> \
+				    <ul> \
+				      <li id="home"><a href="index.html">Home</a></li> \
+				      <li id="game" class="ui-state-active pageLinks"><a href="index.html"><a href="game.html">Game</a></li> \
+				      <li id="feedback"><a href="feedback.html">Feedback</a></li> \
+				      <li id="profile"><a href="profile.html">Profile</a></li> \
+				      <li id="admin" style="display: none;"><a href="admin.html">Admin</a></li> \
+				      <li id="about"><a href="about.html">About</a></li> \
+				      <li id="logout"><a class="logout ui-state-default" href="#0">Log Out</a></li> \
+				      <li><a class="cd-signin ui-state-default" href="#0" style="display: none;">Sign in</a></li> \
+				      <li><a class="cd-signup ui-state-default" href="#0" style="display: none;">Sign up</a></li> \
+					</ul> \
+					</nav>'
+				)
+
+		    }else if(screen.width > 600) {
+		        $(".main-nav").html(
+			        '<nav class="main-nav"> \
+						<ul class="ui-widget-default"> \
+							<li id="home"><a href="index.html">Home</a></li> \
+							<li id="game"><a href="game.html">Game</a></li> \
+							<li id="feedback"><a href="feedback.html">Feedback</a></li> \
+							<li id="profile"><a href="profile.html">Profile</a></li> \
+							<li id="admin"><a href="admin.html">Admin</a></li> \
+							<li id="about"><a href="about.html">About</a></li> \
+							<li id="logout"><a class="logout ui-state-default" href="#0">Log Out</a></li> \
+							<li><a class="cd-signin ui-state-default" href="#0">Sign in</a></li> \
+							<li><a class="cd-signup ui-state-default" href="#0">Sign up</a></li> \
+						</ul> \
+					</nav>'
+				)
+		    }
+		})();
 		// logged in user
 		info = this.getCookie('user');
 		for(var key in navPages){
