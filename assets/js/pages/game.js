@@ -5,13 +5,14 @@
 require([
 	'jquery',
 	'app',
+	'gameLib',
 	'flipclock',
 	'validate',
 	'jqueryUI',
 	'livequery',
 	'cookie',
 	'blockUI'
-	], function($, app){
+	], function($, app, lib){
 		// game parameters global var
 		var user,
 			timeout,
@@ -21,6 +22,9 @@ require([
 			onStateClass = "ui-state-highlight",
 			offStateClass = "ui-widget-content",
 			disableStateClass = "ui-state-disabled",
+			gamePanel = 'h3:contains("Debate Game")',
+			paramPanel = 'h3:contains("Parameter Selection")',
+			resultPanel = 'h3:contains("Game Results")',	
 			gameSubmitted = false,
 			paramMeta = {},
 			pollCounter = 0;
@@ -317,9 +321,12 @@ require([
 		toggleGame();
 
 		// build vote form
+		// add a ul before the vote button
 		$('#btnVote').before('<ul id="selectable" >');
+		// for each of the users in the data...
 		$.each(users, function(){
 			$('#debateVote ul').append(
+				// add user formatted info
 				$('<li />')
 					.append(
 						$('<div id="' + divVotePrefix + this.user_id + '" />').append(
@@ -433,15 +440,12 @@ require([
 		toggleParams();
 
 		// show results
-		if (!$('h3:contains("Game Results")').is(':visible')){
-			$('h3:contains("Game Results")').toggle();
+		if (!$(resultPanel).is(':visible')){
+			$(resultPanel).toggle();
 		}
 
 		// build winner info
-		// find winner by most votes
-		var res = Math.max.apply(Math,users.map(function(o){return o.votes;}));
-		var obj = users.find(function(o){ return o.votes == res; });
-
+		var obj = lib.getWinner(users);	
 		strVote ='<span style="padding-left:20px;"><b>{0}</b> with <i>{1}</i> votes</span></p>';
 		var winner = $('<div />')
 						.addClass('winnerDiv')
@@ -485,82 +489,19 @@ require([
 		// app.dMessage("Winner", users);
 	}
 
-	var gameStartData = {
-		    "wager": 1,
-		    "users": [{
-		            "username": "bobs",
-		            "avatar": "54_avatar.jpg"
-		        },{
-		            "username": "user",
-		            "avatar": "52_avatar.jpg"
-		        },{
-		            "username": "tonym415",
-		            "avatar": "36_avatar.jpg"
-	        }],
-		    "status": "complete",
-		    "time": 60,
-		    "question": "Is the introduction of $15 minimum wage good?",
-		    "game_id": 5
-		};
-
-	var commentResultData = [
-	    {
-	        "pending": 0,
-	        "status": "complete",
-	        "users": [
-	            {
-	                "thoughts": "Bacon ipsum dolor amet jerky rump ham hock, shank shankle venison brisket kielbasa drumstick. Brisket swine short ribs ribeye ball tip spare ribs. Chicken pork loin shoulder pancetta pork ham venison drumstick chuck boudin kevin cow fatback porchetta pastrami. Shank pork belly ham, capicola beef kielbasa salami tail short ribs ground round cow shoulder turkey. Jerky pig doner, capicola kevin bresaola meatball tongue cow short loin ground round pork belly filet mignon. Ground round salami hamburger, beef picanha swine prosciutto bacon pork chop cow tongue ball tip. Pork chop rump porchetta t-bone, short ribs pork loin sausage filet mignon tri-tip picanha salami shoulder.",
-	                "avatar": "36_avatar.jpg",
-	                "username": "tonym415",
-	                "user_id": 36
-	            },
-	            {
-	                "thoughts": "Bresaola biltong chuck shank sirloin bacon venison ground round prosciutto short loin. Brisket venison jowl salami sirloin landjaeger. Short ribs ham hock filet mignon jowl. Bresaola pig porchetta tri-tip drumstick prosciutto tenderloin rump capicola bacon tongue flank short loin ham hock t-bone. Meatball venison chicken, cupim pork loin frankfurter sirloin tail. Drumstick chuck fatback turkey, bresaola ham shoulder meatball sausage biltong strip steak sirloin filet mignon beef.",
-	                "avatar": "52_avatar.jpg",
-	                "username": "user",
-	                "user_id": 52
-	            },
-	            {
-	                "thoughts": "sBeef ribs meatloaf kielbasa ham, rump tail flank doner ground round turducken t-bone. Doner turkey kevin tail, cupim shank bacon venison. Flank boudin pork chop, shoulder tenderloin picanha bresaola capicola leberkas pig shank fatback rump ball tip beef. Rump biltong pig, sirloin short loin jowl kevin tongue short ribs leberkas corned beef pancetta. ",
-	                "avatar": "54_avatar.jpg",
-	                "username": "bobs",
-	                "user_id": 54
-	            }
-	        ]
-	    }
-	];
-	var voteResultData = [{
-		"votes": 1,
-			"user_id": 36,
-		    "avatar": "36_avatar.jpg",
-		    "username": "tonym415"
-		  },
-		  {
-		    "votes": 2,
-		    "user_id": 52,
-		    "avatar": "52_avatar.jpg",
-		    "username": "user"
-		  },
-		  {
-		    "votes": 0,
-		    "user_id": 54,
-		    "avatar": "54_avatar.jpg",
-		    "username": "bobs"
-		  }
-		];
 
 
 	$('#LD').click(function(){
 		// load data to display function
-		$('h3:contains("Debate Game")').click();
-		loadDebate(gameStartData);
+		$(gamePanel).click();
+		loadDebate(lib.sampleGameStartData);
 	});
 
 	$('#LC').click(function(){
 		// load data to display function
-		$('h3:contains("Debate Game")').click();
+		$(gamePanel).click();
 		$('#selectable').remove();
-		displayComments(commentResultData[0].users);
+		displayComments(lib.sampleCommentResultData[0].users);
 	});
 
 
@@ -569,20 +510,20 @@ require([
 	});
 
 	$('#TW').click(function(){
-		if (!$('h3:contains("Game Results")').is(':visible')){
-			loadWinner(voteResultData);
+		if (!$(resultPanel).is(':visible')){
+			loadWinner(lib.sampleVoteResultData);
 		}else{
 			toggleParams();
-			$('h3:contains("Game Results")').toggle();
-			$('h3:contains("Debate Game")').click();
+			$(resultPanel).toggle();
+			$(gamePanel).click();
 		}
 	});
 
 	function toggleParams(){
 		// disable/enable params
-		$('h3:contains("Parameter Selection")').toggleClass('ui-state-disabled');
+		$(paramPanel).toggleClass('ui-state-disabled');
 		// disable/enable game
-		$('h3:contains("Debate Game")').toggleClass('ui-state-disabled');
+		$(gamePanel).toggleClass('ui-state-disabled');
 	}
 
 	function toggleGame(){
@@ -617,6 +558,7 @@ require([
 				stop: function(){
 					$.unblockUI();
 					gameClock.start();
+					$('#gameWait').addClass('hidden');
 				}
 			}
 		});
@@ -657,8 +599,9 @@ require([
 
 
 		// set clock based on time limit parameter
-		// min = paramMeta.getTimeById(data.time);
 		gameClock.setTime(data.time);
+		// show waitclock
+		$('#gameWait').removeClass('hidden');
 		$.blockUI({message: $('#gameWait'), css:{ width: '305px'}});
 		waitClock.start();
 	}

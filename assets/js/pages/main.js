@@ -143,8 +143,7 @@ require(['jquery','app' , 'validate','jqueryUI', 'steps'], function($, app){
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', function(response) {
       console.log('Successful login for: ' + response.name);
-      document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';
+      $('#status').html('Thanks for logging in, ' + response.name + '!');
     });
   }
 });
