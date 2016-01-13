@@ -12,6 +12,7 @@ requirejs.config({
 		app: 'app',
 		// app libraries
 		adminLib: 'lib/pagesLib/adminLib',
+		gameLib: 'lib/pagesLib/gameLib',
 		// The libraries to be used
 		jquery: [
 			'//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery',

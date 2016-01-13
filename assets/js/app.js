@@ -1,7 +1,7 @@
 /**
  * This module sets up an
  * @module app
- * @return {Object} object with specific initialization and data handling for game.html
+ * @return {Object} object with specific initialization and data handling for ISIB
  */
 define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], function($){
 	var objCategories = {},
@@ -16,6 +16,10 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 			hide: { effect: "explode", duration: 1000 },
 			show: { effect: "slide", duration: 800 }
 		},
+		/**
+		 * Object containing codenames for html pages
+		 * @type {Object}
+		 */
 		navPages = {
 			'home' : 'index.html',
 			'game' : 'game.html',
@@ -69,6 +73,11 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 		}
 	});
 
+	/**
+	 * Initialization function for all pages 
+	 * @param  {string} page code name for current pages
+	 * @return {boolean}     if true show the login window 
+	 */
 	var init = function(page){
 		var returnValue,
 			showLogin = false;
@@ -112,12 +121,13 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 				// create counter for sub-category templates
 				$(document).data("tempCount",0);
 
-				// disable game until params established
-				// $("h3:contains('Debate Game')").toggleClass('ui-state-disabled');
 				// hide result pane till necessary
+				$('.debateVote').toggle();
+				$('#gameWait').toggle();
 				$('h3:contains("Game Results")').toggle();
-
 				$("h3:contains('Pre Game')").toggle();
+
+				// create param tabs
 				$('#paramOptions').tabs(tabOptions);
 				break;
 			case 'admin':
@@ -230,7 +240,6 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 			$('.footer')
 				.append(
 					$('<div id="ranks" />')
-						.addClass('hidden')
 						.append(
 							$('<div />')
 								.addClass('center-content')
@@ -273,15 +282,17 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 			$('.rank_close').click(function(){
 				event.preventDefault();
 				$.unblockUI();
+				$('#ranks').remove();
 			});
 		}
+		$('#ranks').toggle(false);
 		return $('#ranks');
 	}
 
 	function rankInfo(){
 		$('.rankInfo').click(function(){
 			event.preventDefault();
-			// open rules
+			// open rank info
 			$.blockUI({
 				fadeIn: 1000,
 				css: {
@@ -290,7 +301,10 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 	                width: '500px'
 				},
 				message: showRanking(),
-				onOverlayClick: $.unblockUI
+				onOverlayClick: function(){
+					$.unblockUI();
+					$('#ranks').remove();
+				}
 			});
 		});
 
@@ -496,9 +510,14 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 			type: "POST",
 			url: app_engine
 		})
-		.done(function(result){
-			if (typeof(result) !== 'object'){
-			 	result = JSON.parse(result)[0];
+		.done(function(result, status, jqXHR){
+			if (typeof(result) === 'string'){
+				isHTML = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/i.test(result);
+				if (isHTML){
+					app.dMessage('Error', jqXHR.getAllResponseHeaders());
+				}else{
+				 	result = JSON.parse(result)[0];
+				}
 			}
 			// internal error handling
 			if (result.error !== undefined){
