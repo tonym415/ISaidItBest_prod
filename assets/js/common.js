@@ -11,6 +11,7 @@ requirejs.config({
 		// global application object
 		app: 'app',
 		// app libraries
+		appLib: 'lib/pagesLib/appLib',
 		adminLib: 'lib/pagesLib/adminLib',
 		gameLib: 'lib/pagesLib/gameLib',
 		// The libraries to be used

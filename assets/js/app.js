@@ -3,7 +3,14 @@
  * @module app
  * @return {Object} object with specific initialization and data handling for ISIB
  */
-define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], function($){
+define([
+	'jquery', 
+	'appLib',
+	'cookie', 
+	'blockUI', 
+	'jqueryUI', 
+	'validate',
+	'tooltipster'], function($, lib){
 	var objCategories = {},
 		defaultTheme = 'ui-lightness',
 		app_engine = "cgi-bin/engine.py",
@@ -15,64 +22,8 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 			heightStyle: 'content',
 			hide: { effect: "explode", duration: 1000 },
 			show: { effect: "slide", duration: 800 }
-		},
-		/**
-		 * Object containing codenames for html pages
-		 * @type {Object}
-		 */
-		navPages = {
-			'home' : 'index.html',
-			'game' : 'game.html',
-			'feedback': 'feedback.html',
-			'profile': 'profile.html',
-			'about': 'about.html',
-			'admin': 'admin.html'
-		},
-		skillLevels = [{
-				"title" : "Blowhard",
-				"description" : "Look who hasn't even won eleven games....."
-			},{
-				"title" : "Bigmouth",
-				"description" : "Get some games under you belt and we'll talk"
-			},{
-				"title" : "Conversationalist",
-				"description" : "Looks like someone is making money"
-			},{
-				"title" : "Commentator",
-				"description" : "Gaining momentum"
-			},{
-				"title" : "Scholar",
-				"description" : "Look who can argue!"
-			},{
-				"title" : "Lecturer",
-				"description" : "Debater Spectacular"
-			},{
-				"title" : "Advocate",
-				"description" : "You know your stuff"
-			},{
-				"title" : "Orator",
-				"description" : "Basically, Winston Churchill."
-			},{
-				"title" : "Elocutionist",
-				"description" : "Straight winning"
-			},{
-				"title" : "Rhetorician",
-				"description" : "Apex"
-			}
-		];
-
-	$.fn.tooltipster('setDefaults',{
-		trigger: 'custom',
-		onlyOne: false,
-		positionTracker: true,
-		position: 'right',
-		updateAnimation: false,
-		animation: 'swing',
-		positionTrackerCallback: function(){
-			this.hide();
-		}
-	});
-
+		};
+		
 	/**
 	 * Initialization function for all pages 
 	 * @param  {string} page code name for current pages
@@ -169,38 +120,11 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 	function setFooter(){
 		// universal function to create the footer
 		// NOTE: ids/classes are important progmatically (caution when changing)
-
-		// rules div
-		tplRules = "<div class='agreement_text' style='display:none;'> \
-						<div class='rules'> \
-							<h2>Rules and Regulations</h2> \
-							<ol> \
-								<li> \
-									While <b><i>Isaiditbest</b></i> allows great leniency regarding freedom of speech while debating, Isaiditbest reserves the right to suspend or revoke membership to any member for anything that <b><i>Isaiditbest</b></i> determines is hate speech. Similarly, any intimidating language towards other members is also strictly prohibited. By using this website, all users acknowledge that Wesaiditbest retains the right to make these decisions regarding who may debate on our website. \
-								</li> \
-								<li> \
-									Group coordination, where there is a prearranged agreement between multiple members to vote for each other, is strictly prohibited.<br /> \
-									<p> \
-										By using this website, all users acknowledge that any attempt to perform these actions will result in a ban and potential forfeit of remaining credit, which may be used only for the purposes of reimbursing potentially harmed contestants. Any use of this website comes with the knowledge that Isaiditbest retains the right to determine whether group coordination occurred and take these listed actions. Any customers facing potential suspension or credit forfeit will be given a minimum of 72 hours to appeal our decision. By using this website, all users give their consent to <b><i>Isaiditbest</b></i> to determine if group coordination occurred and undertake the actions mentioned in this document. \
-									</p><br /> \
-									<p> \
-										<b><i>Isaiditbest</i></b> retains the right to make any and all decisions regarding who may use this website and all game decisions, including retroactive game decisions in the case that group coordination is believed to have occurred. By signing up and participating in games, I agree to these terms. \
-									</p> \
-								</li> \
-							</ol> \
-							<br> \
-							<p> \
-								<a class='agreement_close' href='#'>Close this dialog</a> \
-							</p> \
-						</div>";
-		txtFooter = "Use of this website constitutes acceptance of the ISaidItBest \
-			<a class=\"agreement\" href=\"#\">Rules Agreement</a>";
-
 		// wrap the content of the body with a container and wrap that with container to accomodate the footer stylings
 		$('body').wrapInner("<div id='content'></div>");
 		$('#content').wrap('<div id="container" />');
 		$('<div class="footer"> </div>')
-			.html(txtFooter + tplRules)
+			.html(lib.getFooterText())
 			.prepend( $('<div class="test" />') )
 			.insertAfter('#container');
 	}
@@ -248,7 +172,7 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 					)
 				);
 
-			$.each(skillLevels,function(idx, value){
+			$.each(lib.skillLevels,function(idx, value){
 				$('#ranks dl')
 						.append(
 							$('<dt />')
@@ -333,7 +257,7 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 	var loginNavBar = function(page){
 		// logged in user
 		info = this.getCookie('user');
-		for(var key in navPages){
+		for(var key in lib.navPages){
 			// don't show links if not logged in
 			if (info === undefined){
 				if (key == 'profile') $('#' + key).toggle();
@@ -350,7 +274,7 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 			// hide signin/signup
 			$('.cd-signin, .cd-signup').toggle();
 			// if (page === 'home') return false;
-			userSpan = "<span id='welcome' class='ui-widget'>Welcome, <a href='" +  navPages.profile + "'>   "  + info.username  ;
+			userSpan = "<span id='welcome' class='ui-widget'>Welcome, <a href='" +  lib.navPages.profile + "'>   "  + info.username  ;
 			userSpan += "<img src='" + getAvatar() + "' title='Edit " + info.username + "' class='avatar_icon'></a>";
 			userSpan += "<br /><span class='skill_level ui-widget'><span class='skill_level_text rankInfo'>Level</span>:<img src='/assets/css/images/trans1.png' class=''></span></span>";
 			$("header").after(userSpan);
@@ -390,7 +314,7 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 	function getLevelName(val){
 		// get the index of the skill level name
 		idx = val % 100 / 10 | 0;
-		return skillLevels[idx].title;
+		return lib.skillLevels[idx].title;
 	}
 
 	var loading = function(msg){
@@ -607,80 +531,7 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 	function escapeId(myID){
 		return "#" + myID.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\\\$&");
 	}
-	/**
-	 * Check if a number is in between min and max
-	 * @return {Boolean} Boolean
-	 */
-	 Number.prototype.between = function(min, max){
-		 return this.valueOf() >= min && this.valueOf() <= max;
-	 };
 
-	/**
-	 * Capitalizes string
-	 * @return {String} capitalized string
-	 */
-	String.prototype.capitlize = function(){
-		return this.toLowerCase().replace( /\b\w/g, function(m){
-			return m.toUpperCase();
-		});
-	};
-
-	/**
-	 * get prefix
-	 * @return {String} prefix of string
-	 */
-	String.prototype.prefix = function (separator) {
-	    separator = (separator === undefined) ? '_' : separator;
-	    return this.substring(0, this.indexOf(separator) + 1);
-	};
-
-	/**
-	 * Converts form data to js object
-	 * @return {formdata} object
-	 */
-	$.fn.serializeForm = function(checkAll) {
-	    var o = {"id": this.prop('id')};
-
-	    var a = (checkAll) ? this.serializeAllArray() : this.serializeArray();
-	    // var a = this.serializeArray();
-	    $.each(a, function() {
-	        if (o[this.name] !== undefined) {
-	            if (!o[this.name].push) {
-	                o[this.name] = [o[this.name]];
-	            }
-	            o[this.name].push(this.value || '');
-	        } else {
-	            o[this.name] = this.value || '';
-	        }
-	    });
-	    return o;
-	};
-
-	/**
-	 * Converts form data to js object
-	 * @return {formdata} object
-	 */
-	 $.fn.serializeAllArray = function () {
-		return $('input', this);
-	 };
-
-	/**
-	 * Converts seconds to HH:MM:SS
-	 * @return {string} string
-	 */
-	String.prototype.toMMSS = function () {
-	    var sec_num = parseInt(this, 10); // don't forget the second param
-	    var hours   = Math.floor(sec_num / 3600);
-	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-	    var seconds = sec_num - (hours * 3600) - (minutes * 60);
-
-	    // if (hours   < 10) {hours   = "0"+hours;}
-	    if (minutes < 10) {minutes = "0"+minutes;}
-	    if (seconds < 10) {seconds = "0"+seconds;}
-	    // var time    = hours+':'+minutes+':'+seconds;
-	    var time    = minutes+':'+seconds;
-	    return time;
-	};
 
     // validator selectmenu method
     $.validator.addMethod("selectNotEqual", function(value, element, param) {
@@ -765,6 +616,17 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 	   };
 	}
 
+	// usersnap code for bug reporting
+	(function() {
+		var s = document.createElement("script");
+		s.type = "text/javascript";
+		s.async = true;
+		s.src = '//api.usersnap.com/load/'+
+		        '1135d21c-f848-4993-a9cb-fe7141f4cac2.js';
+		var x = document.getElementsByTagName('script')[0];
+		x.parentNode.insertBefore(s, x);
+	})();
+	
 	/** return the app object with var/functions built in */
 	return {
 		init: init,
@@ -772,7 +634,7 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 		selectMenuOpt: selectMenuOpt,
 		tabOptions: tabOptions,
 		// site pages referred here so no hard coding is necessary
-		pages: navPages,
+		pages: lib.navPages,
 		// CGI script that does all the work
 		engine : app_engine,
 		objCategories: objCategories,
@@ -921,4 +783,6 @@ define(['jquery', 'cookie', 'blockUI', 'jqueryUI', 'validate','tooltipster'], fu
 	        }
 		}
 	};
+
+
 });

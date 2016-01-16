@@ -48,9 +48,16 @@ body > #container { height: auto; min-height: 98%; }
 }
 
 .winnerDiv {
-    padding: 50px;
+  /* padding: 50px; */
+  text-align: center;
 }
 
+.winnerTitle {
+  background-color: rgba(47, 241, 9, 0.58);
+}
+#debate {
+  background-color: rgba(240, 255, 10, 0.59);
+}
 dt {
 	font-weight: bold;
     font-style: italic;
@@ -164,6 +171,7 @@ label .pass {
  #welcome {
     font-weight:bold;
     padding-left: 15px;
+    float: left;
  }
 
  #welcome img {
@@ -421,6 +429,22 @@ img {
 }
 
 /* game styling */
+.payPalForm {
+  float: right;
+}
+
+.payPalForm form {
+  display: block;
+}
+
+.ui-tabs {
+  display: block;
+    left: 0;
+    right: 0;
+    margin: auto !important;
+    width: 50%;
+    border: none !important;
+}
 #paramOptions ul, #tabs ul{
     border: none !important;
     background: none !important;
@@ -641,6 +665,17 @@ header[role=banner]::after {
 
 
 /* login styles */
+.signin-message {
+    margin: auto;
+    left: 0;
+    top: 55px;
+    right: 0;
+    display: block;
+    width: 40%;
+    font-size: 2em;
+    font-weight: 700;
+    text-align: center;
+}
 .cd-form-bottom-message {
   position: absolute;
   width: 100%;
@@ -660,4 +695,11 @@ header[role=banner]::after {
 
 .signup_text {
     font-style: italic;
+}
+
+#accordion {
+    margin-top: 3%;
+    margin-left: 3%;
+    margin-right: 3%;
+    width: 95%;
 }

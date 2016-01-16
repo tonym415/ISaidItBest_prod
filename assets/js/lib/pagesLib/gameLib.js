@@ -16,10 +16,20 @@ define(['jquery', 'app'], function($, app) {
  		
  		// get the highest vote count of the users array
 		var result = Math.max.apply(Math, data.map(function(o){return o.votes;}));
+ 		// get the highest vote count of the users array
+		var sumWager = 0;
+        for (var i=data.length; i--;){
+            sumWager+=data[i].wager;
+        }
 		// get the object the matches the max 
 		// TODO: improve this function to handle ties or more than one object with
 		// 		same result value
-		return data.find(function(o){ return o.votes == result; });
+
+        returnObj = {
+            "pot" : sumWager,
+            "winner" : data.find(function(o){ return o.votes == result; })
+        };
+        return returnObj;
   	};
 
 	var gsData = {
@@ -70,18 +80,21 @@ define(['jquery', 'app'], function($, app) {
 		"votes": 1,
 			"user_id": 36,
 		    "avatar": "36_avatar.jpg",
+            "wager" : 10,
 		    "username": "tonym415"
 		  },
 		  {
-		    "votes": 2,
+		    "votes": 0,
 		    "user_id": 52,
 		    "avatar": "52_avatar.jpg",
+            "wager" : 10,
 		    "username": "user"
 		  },
 		  {
-		    "votes": 0,
+		    "votes": 2,
 		    "user_id": 54,
 		    "avatar": "54_avatar.jpg",
+            "wager" : 10,
 		    "username": "bobs"
 		  }
 		];

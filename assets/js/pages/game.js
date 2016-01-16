@@ -38,25 +38,6 @@ require([
 		$('#btnTest').toggleClass('hidden');
 	});
 
-	function enrichMeta(){
-		// created inbuilt search function
-		paramMeta.getTimeById = function(id){
-			var retVal = -1;
-		    var self = this;
-			var property = 'time_id';
-		    for(var index=0; index < self.times.length; index++){
-		        var item = self.times[index];
-		        if (item.hasOwnProperty(property)) {
-		            if (item[property] === parseInt(id)) {
-		                retVal = item.time_in_seconds;
-		                return retVal;
-		            }
-		        }
-		    }
-		    return retVal;
-		};
-	}
-
 	(function loadMeta(){
 		$.ajax({
 			data: {'function': "GMD", 'id': 'getMetaData'},
@@ -66,8 +47,6 @@ require([
 			desc: 'utility (load metadata)',
 			 success: function(data){
 				paramMeta = data;
-				// call enhancing function
-				enrichMeta();
 				$.each($('[id=wager]'), function(){
 					$(this)
 						.empty()
@@ -446,36 +425,39 @@ require([
 
 		// build winner info
 		var obj = lib.getWinner(users);	
-		strVote ='<span style="padding-left:20px;"><b>{0}</b> with <i>{1}</i> votes</span></p>';
+		strWinnerVote ='<p><b>{0}</b>, with <i>{1}</i> votes, won {2} credits</div></p>';
+		strVote ='<span><b>{0}</b>, with <i>{1}</i> votes</span>';
 		var winner = $('<div />')
 						.addClass('winnerDiv')
 						.append(
-							$('<p><b><i>Winner</i></b>'),
-							$('<img src="/assets/avatars/' + obj.avatar + '" class="avatar_large" />'),
-							$($.validator.format(strVote, [obj.username, obj.votes]))
+                            $('<div />')
+                                .addClass('winnerTitle')
+                                .html('<b><i>Winner</i></b>'),
+							$('<img src="/assets/avatars/' + obj.winner.avatar + '" class="avatar_large" />'),
+							$($.validator.format(strWinnerVote, [obj.winner.username, obj.winner.votes, obj.pot]))
 						);
 
 		// display winner info
-		$('h3:contains("Game Results")').click();
+		$(resultPanel).click();
 			$('#results_panel').find("p").remove();
 			$('#results_footer')
 				.before( $('<p />').append(winner));
 
 		// display the rest of the players
-		$.each(users, function(){
-			if (this.user_id !== obj.user_id){
-				$('#results_footer')
-					.before(
-						$('<div />')
-							.append(
-								$('<img src="/assets/avatars/' + this.avatar + '" class="avatar_icon" />'),
-								$($.validator.format(strVote, [this.username, this.votes]))
-							)
-					);
-			}
-		});
+		// $.each(users, function(){
+		// 	if (this.user_id !== obj.winner.user_id){
+		// 		$('#results_footer')
+		// 			.before(
+		// 				$('<div />')
+		// 					.append(
+		// 						$('<img src="/assets/avatars/' + this.avatar + '" class="avatar_icon" />'),
+		// 						$($.validator.format(strVote, [this.username, this.votes]))
+		// 					)
+		// 			);
+		// 	}
+		// });
 
-		resTitle = (obj.user_id == user.user_id) ? "Congratulations!!! You won!" : "Maybe next time";
+		resTitle = (obj.winner.user_id == user.user_id) ? "Congratulations!!! You won!" : "Maybe next time";
 		$('#results_footer').html(resTitle);
 		$('#results_footer')
 			.append(
@@ -563,7 +545,8 @@ require([
 			}
 		});
 
-	function loadDebate(data){
+	function loadDebate(data, testing){
+		var runtimers = (testing !== undefined)
 		// set game id
 		$('#game_id').val(data.game_id);
 
@@ -594,16 +577,18 @@ require([
 			.html(data.question)
 			.append(
 				$('<h5>')
-					.html("(Wager: " + data.wager + " credit(s))")
+					// .addClass('ui-state-active')
+					.html("(Wager: " + data.wager + " credit".pluralize(data.wager) + ")")
 			);
 
-
-		// set clock based on time limit parameter
-		gameClock.setTime(data.time);
-		// show waitclock
-		$('#gameWait').removeClass('hidden');
-		$.blockUI({message: $('#gameWait'), css:{ width: '305px'}});
-		waitClock.start();
+		if (runtimers){
+			// set clock based on time limit parameter
+			gameClock.setTime(data.time);
+			// show waitclock
+			$('#gameWait').removeClass('hidden');
+			$.blockUI({message: $('#gameWait'), css:{ width: '305px'}});
+			waitClock.start();
+		}
 	}
 
 	$('#cancel').click(function(){
