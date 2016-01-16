@@ -40,10 +40,10 @@ define([
 		// TODO: allow login and signup to work on all allowedPages
 		// pages allowed to be viewed without logging in
 		allowedPages = ['home', 'feedback', 'about'];
+		// if not logged in send to login page
+		user = this.getCookie('user');
 		// is current page on the VIP list?
 		if (-1 == $.inArray(page, allowedPages) ){
-			// if not logged in send to login page
-			user = this.getCookie('user');
 			if (user === undefined) window.location.assign(this.pages.home + "?true");
 		}else{
 			// if location is home page after redirection (see above) set value to open login form
@@ -60,6 +60,7 @@ define([
 		// page specific initialization
 		switch (page) {
 			case 'home':
+				$('.signin-message').toggle((user === undefined));	
 				$("#reset-tab").toggle();
 				returnValue = showLogin;
 				break;
