@@ -43,7 +43,7 @@ body > #container { height: auto; min-height: 98%; }
     position: relative;
     z-index: 10;
     height: 3em;
-    margin-top: 5em;
+    /*margin-top: 5em;*/
     text-align: center;
 }
 
