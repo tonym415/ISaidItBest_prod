@@ -16,20 +16,6 @@
    <meta property="og:description"   content="Finally, a website that proves you won the argument. Debate other people, so that you can win money and brag to your friends." />
    <meta property="og:image:url"     content="http://isaiditbest.ddns.net/assets/css/images/rsz_debate.png" />
    <meta property="fb:app_id"        content='1518603065100165' />
-   <meta name="description" content="Debate and argue with other people to win money, obtain recognition, and get the satisfaction of knowing
-              you won the argument.">
-              
-        
-   <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-71789472-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
 </head>
 <body class="ui-widget-content">
 	<div id="fb-root"></div>
@@ -81,10 +67,9 @@
 		</form>
 	</span>
 	<h1>Game Selection</h1>
-	<span itemprop="name"><h1>Isaiditbest Game Selection</h1></span>
 
 	<div id="accordion">
-		<h3>Game Category Selections</h3>
+		<h3>Parameter Selection</h3>
 		<div id='paramOptions'>
 			<ul>
 				<li><a href='#Alldiv'>All Parameters</a></li>
@@ -94,7 +79,7 @@
 			</ul>
 			<div class="paramDiv" id="Alldiv">
 				<h4 class='ui-state-active no-border'>Select the parameters for the type of debate you want to have.</h4>
-				<form id="all">
+				<form id="All">
 					<div class='group'>
 						<p>
 							<label for='p_paramCategory'>Category</label>
@@ -125,7 +110,7 @@
 				</form>
 			</div>
 			<div class="paramDiv" id="RandomQuestiondiv">
-				<h4 class='ui-state-active no-border'>Select the type of debate game that you want to have</h4>
+				<h4 class='ui-state-active no-border'>Select the parameters for the type of debate you want to have.</h4>
 				<form id="randomQuestion">
 					<div class='group'>
 						<p>
@@ -152,7 +137,7 @@
 			</div>
 			<div class="paramDiv" id="CategoryOnlydiv">
 				<h4 class='ui-state-active no-border'>Select the parameters for the type of debate you want to have.</h4>
-				<form id="categoryOnly">
+				<form id="CategoryOnly">
 					<div class='group'>
 						<p>
 							<label for='p_paramCategory'>Category</label>
@@ -177,7 +162,7 @@
 		</div>
 		<h3>Debate Game</h3>
 		<div id="game_panel">
-				<!-- <div id="debate" class='gameDiv'>
+				<div id="debate">
 				<span class='timer_text ui-state-active no-border'>Minutes left to win!</span> <div class='countdown_timer game_clock' id='game_timer'></div>
 					<h3 id="question"></h3>
 					<form id='gameUI'>
@@ -196,43 +181,6 @@
 						</div>
 						<p class="submit"><input type="submit" value='Submit Thoughts' /></p>
 					</form>
-				</div> -->
-				<div id="debate" class='gameDiv'>
-					<table border="1">
-						<tr>
-							<td colspan="3" align='center'>
-								<span class='timer_text ui-state-active no-border'>Minutes left to win!</span> <div class='countdown_timer game_clock' id='game_timer'></div>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="3" align='center'>
-								<h3 id="question"></h3>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="2">
-								<form id='gameUI'>
-									<div class='group'>
-										<fieldset>
-											<center>
-											<legend>What do you think?</legend>
-											</center>
-												<p>
-													<label for="thoughts">Thoughts:</label>
-													<textarea rows="15" cols="45" id="thoughts" name="thoughts"></textarea>
-												</p>
-												<p><input type='hidden' id='game_id' name='game_id'/></p>
-										</fieldset>
-									</div>
-									<p class="submit"><input type="submit" value='Submit Thoughts' /></p>
-								</form>
-							</td>
-							<td rowspan="3">
-								<div id='players' class='debatePlayers'>Players</div>
-							</td>
-						</tr>
-					</table>
-
 				</div>
 				<center>
 				<div class='debateVote'>
@@ -274,10 +222,9 @@
 		<div id='wait_timer' class='countdown_timer'></div>
 	</center>
 </div>
-<div id='btnTest' class="center-content hidden" style="display:flex;">
+<div id='btnTest' class="center-content no-display" style="display:flex;">
 	<input type='button' value='Load Data' id='LD'/><br>
 	<input type='button' value='Load Comments' id='LC'/><br>
-	<input type='button' value='Toggle Game' id='TG'/><br>
 	<input type='button' value='Toggle Game/Vote' id='TGV'/><br>
 	<input type='button' value='Toggle Winner' id='TW'/>
 </div>
@@ -294,8 +241,5 @@
 			require(['pages/game']);
 		});
 	</script>
-	
-	
-	</span>
 </body>
 </html>
