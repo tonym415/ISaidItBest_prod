@@ -84,14 +84,14 @@ define(['jquery', 'app'], function($, app) {
 		    "username": "tonym415"
 		  },
 		  {
-		    "votes": 0,
+		    "votes": 2,
 		    "user_id": 52,
 		    "avatar": "52_avatar.jpg",
             "wager" : 10,
 		    "username": "user"
 		  },
 		  {
-		    "votes": 2,
+		    "votes": 0,
 		    "user_id": 54,
 		    "avatar": "54_avatar.jpg",
             "wager" : 10,
