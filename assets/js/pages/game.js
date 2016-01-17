@@ -35,7 +35,7 @@ require([
 
 	// following line must be commented for production
 	$(document).on('click', '.test', function(){
-		$('#btnTest').toggleClass('hidden');
+		$('#btnTest').toggleClass('no-display');
 	});
 
 	(function loadMeta(){
