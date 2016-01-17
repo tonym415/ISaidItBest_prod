@@ -147,9 +147,11 @@ blockquote:after {
 }
 
 .hidden  {
+  display: none;
+}
+.no-display{
   display: none !important;
 }
-
 .text-content {
     padding: 50px 30px 50px 80px;
 }
