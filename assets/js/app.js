@@ -11,7 +11,8 @@ define([
 	'jqueryUI', 
 	'validate',
 	'tooltipster'], function($, lib){
-	var objCategories = {},
+	var app,
+        objCategories = {},
         testBtnDialog,
 		defaultTheme = 'ui-lightness',
 		app_engine = "cgi-bin/engine.py",
@@ -33,31 +34,21 @@ define([
 	var init = function(page){
 		var returnValue,
 			showLogin = false;
-		this.currentPage = page;
-		// show active page
-		$('.main-nav li').removeClass();
-		$('#' + page).addClass('ui-state-active pageLinks');
-
-		// TODO: allow login and signup to work on all allowedPages
-		// pages allowed to be viewed without logging in
-		allowedPages = ['home', 'feedback', 'about'];
 		// if not logged in send to login page
 		user = this.getCookie('user');
-		// is current page on the VIP list?
-		if (-1 == $.inArray(page, allowedPages) ){
-			if (user === undefined) window.location.assign(this.pages.home + "?true");
-		}else{
-			// if location is home page after redirection (see above) set value to open login form
-			locParams = window.location;
-			webPage = locParams.pathname.split('/')[1];
-			search = locParams.search.split('?')[1];
-			showLogin = (webPage === this.pages.home && search !== undefined);
-		}
+		this.currentPage = page;
 
+        // ensure player is logged in
+        showLogin = this.ensureLogin(page, user);
+	
 		//  Initalize app setup functions
 		this.setTheme();
 		this.navBar(page);
 
+		// show active page
+		$('.main-nav li').removeClass();
+		$('#' + page).addClass('ui-state-active pageLinks');
+        
 		// page specific initialization
 		switch (page) {
 			case 'home':
@@ -118,6 +109,31 @@ define([
 		this.agreement();
 		return returnValue;
 	};
+
+    function ensureLogin(page, user){
+        // TODO: allow login and signup to work on all allowedPages
+
+
+        // use window location information to show login if necessary
+        locParams = window.location;
+        paths = locParams.pathname.split('/');
+        webPage = paths[paths.length - 1];
+        search = locParams.search.split('?')[1];
+        showLogin = (webPage === this.pages.home && search !== undefined);
+
+        // pages allowed to be viewed without logging in
+		allowedPages = ['home', 'feedback', 'about'];
+		// is current page on the VIP list?
+		if (-1 == $.inArray(page, allowedPages) && !showLogin){
+            // if location is home page after redirection (see above) set 
+            // value to open login form
+			if (user === undefined) window.location.assign(this.pages.home + "?true");
+        }else{
+        
+        }
+        return search;
+    }
+
 
 	function setFooter(){
 		// universal function to create the footer
@@ -292,7 +308,8 @@ define([
 
 	var loginNavBar = function(page){
 		// logged in user
-		info = this.getCookie('user');
+        app = this;
+		info = app.getCookie('user');
 		for(var key in lib.navPages){
 			// don't show links if not logged in
 			if (info === undefined){
@@ -664,7 +681,7 @@ define([
 	})();
 	
 	/** return the app object with var/functions built in */
-	return {
+	app =  {
 		init: init,
 		defaultTheme: defaultTheme,
 		selectMenuOpt: selectMenuOpt,
@@ -695,6 +712,7 @@ define([
 		setFooter: setFooter,
 		rankInfo: rankInfo,
         toggleTestButtons: toggleTestButtons,
+        ensureLogin: ensureLogin,
 		dMessage : function(title, message, options){
 			title = (title === undefined) ? "Error" : title;
 			if (message !== undefined){
@@ -821,5 +839,26 @@ define([
 		}
 	};
 
+    
+    // handles login/signup buttons on all pages
+	$(document).on('click', '.main-nav',function(event){
+        user = app.getCookie('user');
+        signup = $(event.target).is('.cd-signup');
+		if (signup) app.agreement();
 
+		signin = $(event.target).is('.cd-signin');
+		if (signup || signin){
+			index = (signup) ? 1 : 0;
+            if ($('.modal-container').length > 0){
+                $('.modal-container')
+                    .tabs({ active: index })
+                    .dialog('open')
+                    .siblings('div.ui-dialog-titlebar').remove();
+            }else{
+                if (user === undefined) window.location.assign(app.pages.home + "?" + index );
+            }
+		}
+  
+    });
+    return app;
 });
