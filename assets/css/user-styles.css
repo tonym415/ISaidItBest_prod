@@ -65,12 +65,14 @@ body > #container { height: auto; min-height: 98%; }
 }
 
 .winnerDiv {
-  /* padding: 50px; */
-  text-align: center;
+  /* padding: 50px; 
+  text-align: center;*/
+  width: 11.4em;
 }
 
 .winnerTitle {
   background-color: rgba(47, 241, 9, 0.58);
+  text-align: center
 }
 #game_panel {
   background-color: rgba(240, 255, 10, 0.59);
@@ -536,7 +538,7 @@ img {
 }
 
 #selectable { list-style-type: none; margin: 0; padding: 0;  }
-#selectable li { margin: 10px; padding: 0.4em; }
+#selectable li { margin: 1em; padding: 1.4em; }
 
 .votequote {
   border-left: 10px solid #ccc;
@@ -717,6 +719,7 @@ header[role=banner]::after {
 
 /* login styles */
 .signin-message {
+    z-index: 10;
     position: fixed;
     margin: auto;
     left: 0;
