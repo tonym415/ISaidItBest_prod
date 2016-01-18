@@ -35,7 +35,6 @@ require([
 
 	// following line must be commented for production
 	$(document).on('click', '.test', function(){
-		//$('#btnTest').toggleClass('hidden');
         app.toggleTestButtons();
 	});
 

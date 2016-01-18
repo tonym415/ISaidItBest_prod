@@ -31,24 +31,11 @@ require(['jquery','app' , 'validate','jqueryUI', 'steps'], function($, app){
 			}
 		});
 
-	$('.main-nav').on('click',function(event){
-		signup = $(event.target).is('.cd-signup');
-		if (signup) app.agreement();
-
-		signin = $(event.target).is('.cd-signin');
-		if (signup || signin){
-			index = (signup) ? 1 : 0;
-			$('.modal-container')
-				.tabs({ active: index })
-				.dialog('open')
-				.siblings('div.ui-dialog-titlebar').remove();
-		}
-	});
-
 	// if players is redirected to this page make them login
 	if (showLogin){
+        index = ($.isNumeric(showLogin))? parseInt(showLogin) : 0; 
 		$('.modal-container')
-			.tabs({ active: 0 })
+			.tabs({ active: index })
 			.dialog('open')
 			.siblings('div.ui-dialog-titlebar').remove();
 	}
