@@ -16,6 +16,7 @@ body > #container { height: auto; min-height: 98%; }
 
 #content {
     padding-bottom: 1em;
+    margin-bottom: 2em;
 }
 .footer {
     clear: both;
@@ -135,16 +136,17 @@ cite {
     display: block;
     float: right;
     margin-bottom: 1em;
-    padding-right: 5em
+    padding-right: 2em
 }
 
 cite:before {
 content: "\2014 \2009";
 }
 .siteQuote {
-    border-radius: 10px;
+    border-radius: 3em;
     position: fixed;
     right: 3.5em;
+    width: 12em;
     top: 6em;
 }
 blockquote {

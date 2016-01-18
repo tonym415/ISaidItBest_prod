@@ -11,7 +11,8 @@ define([
 	'jqueryUI', 
 	'validate',
 	'tooltipster'], function($, lib){
-	var objCategories = {},
+	var app,
+        objCategories = {},
         testBtnDialog,
 		defaultTheme = 'ui-lightness',
 		app_engine = "cgi-bin/engine.py",
@@ -33,31 +34,21 @@ define([
 	var init = function(page){
 		var returnValue,
 			showLogin = false;
-		this.currentPage = page;
-		// show active page
-		$('.main-nav li').removeClass();
-		$('#' + page).addClass('ui-state-active pageLinks');
-
-		// TODO: allow login and signup to work on all allowedPages
-		// pages allowed to be viewed without logging in
-		allowedPages = ['home', 'feedback', 'about'];
 		// if not logged in send to login page
 		user = this.getCookie('user');
-		// is current page on the VIP list?
-		if (-1 == $.inArray(page, allowedPages) ){
-			if (user === undefined) window.location.assign(this.pages.home + "?true");
-		}else{
-			// if location is home page after redirection (see above) set value to open login form
-			locParams = window.location;
-			webPage = locParams.pathname.split('/')[1];
-			search = locParams.search.split('?')[1];
-			showLogin = (webPage === this.pages.home && search !== undefined);
-		}
+		this.currentPage = page;
 
+        // ensure player is logged in
+        showLogin = this.ensureLogin(page, user);
+	
 		//  Initalize app setup functions
 		this.setTheme();
 		this.navBar(page);
 
+		// show active page
+		$('.main-nav li').removeClass();
+		$('#' + page).addClass('ui-state-active pageLinks');
+        
 		// page specific initialization
 		switch (page) {
 			case 'home':
@@ -118,6 +109,25 @@ define([
 		this.agreement();
 		return returnValue;
 	};
+
+    function ensureLogin(page, user){
+        // use window location information to determine if login flag is needed 
+        locParams = window.location;
+        paths = locParams.pathname.split('/');
+        webPage = paths[paths.length - 1];
+        search = locParams.search.split('?')[1];
+        showLogin = (webPage === this.pages.home && search !== undefined);
+
+        // pages allowed to be viewed without logging in
+		allowedPages = ['home', 'feedback', 'about'];
+		// is current page on the VIP list?
+		if (-1 == $.inArray(page, allowedPages) && !showLogin){
+            // set location to home page with login flag 
+			if (user === undefined) window.location.assign(this.pages.home + "?true");
+        }
+        return showLogin;
+    }
+
 
 	function setFooter(){
 		// universal function to create the footer
@@ -256,7 +266,7 @@ define([
 			$.blockUI({
 				fadeIn: 1000,
 				css: {
-					top:  ($(window).height() - 500) /2 + 'px',
+					top:  ($(window).height() - 600) /2 + 'px',
 	                left: ($(window).width() - 500) /2 + 'px',
 	                width: '500px'
 				},
@@ -292,7 +302,8 @@ define([
 
 	var loginNavBar = function(page){
 		// logged in user
-		info = this.getCookie('user');
+        app = this;
+		info = app.getCookie('user');
 		for(var key in lib.navPages){
 			// don't show links if not logged in
 			if (info === undefined){
@@ -662,9 +673,21 @@ define([
 		var x = document.getElementsByTagName('script')[0];
 		x.parentNode.insertBefore(s, x);
 	})();
-	
+
+    function toggleSignIn(){ $("#login-tab, #reset-tab").toggle(); }
+
+    function showLoginDialog(idx, fn){
+        // get logic for signup and login
+        require(['pages/index','pages/signup']);
+        if (!$('.modal-container').length) createLoginDialog();
+        $('.modal-container')
+            .tabs({ active: idx })
+            .dialog('open')
+            .siblings('div.ui-dialog-titlebar').remove();
+    }
+
 	/** return the app object with var/functions built in */
-	return {
+	app =  {
 		init: init,
 		defaultTheme: defaultTheme,
 		selectMenuOpt: selectMenuOpt,
@@ -695,6 +718,9 @@ define([
 		setFooter: setFooter,
 		rankInfo: rankInfo,
         toggleTestButtons: toggleTestButtons,
+        ensureLogin: ensureLogin,
+        showLoginDialog: showLoginDialog,
+        toggleSignIn: toggleSignIn,
 		dMessage : function(title, message, options){
 			title = (title === undefined) ? "Error" : title;
 			if (message !== undefined){
@@ -821,5 +847,62 @@ define([
 		}
 	};
 
+    function createLoginDialog(){
+        //load the signin/up template 
+        $('.test').load('templates.html .modal-container', function(response, status, xhr){
+            if (status != 'error'){
+                // hide password reset panel by default
+                $("#reset-tab").toggle();
+                $(".modal-container")
+                    .tabs({
+                        beforeActivate: function(event, ui){
+                            // if going from reset password to signup...
+                            if (ui.newPanel[0].id === 'signup-tab'){
+                                // reset signup tab to prevent...weirdness
+                                if ($('#reset-tab').is(':visible')) app.toggleSignIn();
+                            }
+                        }
+                    })
+                    .dialog({
+                        // resizable: false,
+                        autoResize: true,
+                        autoOpen: false,
+                        minHeight: "auto",
+                        closeOnEscape: true,
+                        dialogClass: 'no-close',
+                        modal: true,
+                        width: 'auto',
+                        height: 'auto',
+                        buttons: {
+                            Close: function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                $('.cd-form-bottom-message').click(app.toggleSignIn);
+                app.showLoginDialog();
+            }else{
+                app.dMessageBox('Error', xhr);
+            }
+        });
+    }
 
+   	$(document).on('click', '.main-nav',function(event){
+        user = app.getCookie('user');
+        signup = $(event.target).is('.cd-signup');
+		if (signup) app.agreement();
+
+		signin = $(event.target).is('.cd-signin');
+        // function helper to show signin panel
+		if (signup || signin){
+			index = (signup) ? 1 : 0;
+            // if the signup element has not been created
+            if (!$('.modal-container').length){
+                createLoginDialog();
+            }else{
+                app.showLoginDialog(index);
+            }
+        }
+    }); 
+    return app;
 });
