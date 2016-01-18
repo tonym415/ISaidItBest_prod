@@ -12,6 +12,7 @@ define([
 	'validate',
 	'tooltipster'], function($, lib){
 	var objCategories = {},
+        testBtnDialog,
 		defaultTheme = 'ui-lightness',
 		app_engine = "cgi-bin/engine.py",
 		default_avatar = 'assets/css/images/anon_user.png',
@@ -125,11 +126,45 @@ define([
 		$('body').wrapInner("<div id='content'></div>");
 		$('#content').wrap('<div id="container" />');
 		$('<div class="footer"> </div>')
+            .addClass('ui-state-default')
 			.html(lib.getFooterText())
 			.prepend( $('<div class="test" />') )
 			.insertAfter('#container');
 	}
 
+    /**
+     *   * Shows test buttons for the current page if any
+     *       
+    */
+    function toggleTestButtons(){
+        btnContainer = $('#btnTest');
+
+        if (btnContainer.length > 0){
+            // create test button dialog
+              if (testBtnDialog === undefined){
+                  btnContainer.toggleClass('no-display');
+                  $('.test').html("TEST TOGGLE");
+                  testBtnDialog = btnContainer.dialog({
+                      title: "Test Buttons",
+                      dialogClass: 'no-close',
+                      height: 200,
+                      width: 800,
+                      modal: true,
+                      hide: { effect: "fade", duration: 300 },
+                      show: { effect: "fade", duration: 300 },
+                      buttons: [{
+                          text: 'Close',
+                          click: function() {
+                              $(this).dialog('close'); 
+                              $('.test').html("");
+                              }
+                      }]
+                  });          
+            }else{
+                testBtnDialog.dialog('open');
+            }
+        }
+    }
 	function agreement(){
 		// make sure rules are read before 'agreeing'
 		$('.rules').scroll(function(){
@@ -659,6 +694,7 @@ define([
 		agreement: agreement,
 		setFooter: setFooter,
 		rankInfo: rankInfo,
+        toggleTestButtons: toggleTestButtons,
 		dMessage : function(title, message, options){
 			title = (title === undefined) ? "Error" : title;
 			if (message !== undefined){
