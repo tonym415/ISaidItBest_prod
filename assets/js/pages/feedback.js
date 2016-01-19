@@ -3,8 +3,6 @@
  */
 require(['jquery','app' , 'validate','jqueryUI'], function($, app){
 	app.init('feedback');
-    // formatting
-    $('input[type!=submit], textarea').width($('#category-button').width())
 	// load catagories for feedback
 	(function(){
 		$.ajax({
@@ -137,4 +135,6 @@ require(['jquery','app' , 'validate','jqueryUI'], function($, app){
 		});
 	 }
 
+    // formatting
+    $('input[type!=submit], textarea').width($('#category-button').width());
 });
