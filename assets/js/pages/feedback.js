@@ -1,9 +1,14 @@
 /**
-* Handles js interaction for the feedback page
+* @fileOverview Handles js interaction for the feedback page
 * @module feedback
- */
+* @author Tony Moses
+* @version 0.1
+*/
 require(['jquery','app' , 'validate','jqueryUI'], function($, app){
+    // calls submitFeedback on valid()
+    var categoryValid = false;
     app.init('feedback');
+
     // load catagories for feedback
     (function(){
         $.ajax({
@@ -27,9 +32,13 @@ require(['jquery','app' , 'validate','jqueryUI'], function($, app){
         });
     })();
 
-    // custom validation for category box...give user another chance to choose before submission
+    /**
+     * Custom validation for category box...give user another chance to
+     * choose before submission
+     * @method confirmCategory
+     * @param {boolean} valid used to override validation of category field
+     */
     function confirmCategory(valid){
-        // override validation of category field
         if (categoryValid){
             valid = categoryValid;
         }
@@ -61,9 +70,10 @@ require(['jquery','app' , 'validate','jqueryUI'], function($, app){
         }
     }
 
-    // validate signup form on keyup and submit
-    // calls submitFeedback on valid()
-    var categoryValid = false;
+    /**
+     * validate signup form with jquery plugin ([validate]{@link validate})
+     * @method validate
+     */
     $("#frmFeedback").validate({
         submitHandler: function(){
             formData = $(this.currentForm).serializeForm();
@@ -78,7 +88,6 @@ require(['jquery','app' , 'validate','jqueryUI'], function($, app){
                         var invalidValue = "0",
                         currentValue = $(element).val(),
                         valid = invalidValue != currentValue;
-
                         // if not valid...are you sure?
                         if (!categoryValid){
                             confirmCategory(valid);
@@ -112,7 +121,6 @@ require(['jquery','app' , 'validate','jqueryUI'], function($, app){
 
     /**
      *  Submits an ajax call to send signup info to the database
-     *
      *  @method submitFeedback
      */
      function submitFeedback(data){

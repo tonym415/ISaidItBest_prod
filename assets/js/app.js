@@ -8,8 +8,7 @@
  * Places of interest as of 24Jan16
  *   - See {@link module:app/appLib} for all "lib" interaction
  *    - [Navigation Bar]{@link module:app~loginNavBar}
- * @module app
- * @return {Object} object with specific initialization and data handling for ISIB
+ * @module appModule
  */
 define([
     'jquery',
@@ -19,6 +18,16 @@ define([
     'jqueryUI',
     'validate',
     'tooltipster'], function($, lib){
+    /**
+     * Namespace for attaching events
+     * @private
+     * @namespace document
+     */
+
+       /**#@+
+     * @private
+     * @memberof app
+    */
     var app,
         objCategories = {},
         testBtnDialog,
@@ -33,6 +42,7 @@ define([
             hide: { effect: "explode", duration: 1000 },
             show: { effect: "slide", duration: 800 }
         };
+    /**#@-*/
 
     /**
      * @method init
@@ -120,8 +130,8 @@ define([
     };
 
     /**
+     * Use window location information to determine if login flag is needed
      * @method ensureLogin
-     * @desc Use window location information to determine if login flag is needed
      */
     function ensureLogin(page, user){
         locParams = window.location;
@@ -142,9 +152,9 @@ define([
 
 
     /**
-     * @method setFooter
-     * @desc Universal function to create the footer
+     * Universal function to create the footer
      * Uses template string from library to load footer {@link module:app/appLib~getFooterText}
+     * @method setFooter
      */
     function setFooter(){
         // NOTE: ids/classes are important progmatically (caution when changing)
@@ -159,7 +169,8 @@ define([
     }
 
     /**
-     *   * Shows test buttons for the current page if any
+     * Shows test buttons for the current page if any
+     * @method toggleTestButtons
      *
     */
     function toggleTestButtons(){
@@ -193,8 +204,8 @@ define([
     }
 
     /**
+     * Shows agreement window
      * @method agreement
-     * @desc Shows agreement window
      */
     function agreement(){
         // make sure rules are read before 'agreeing'
@@ -227,8 +238,8 @@ define([
     }
 
     /**
+     * Build rankings element
      * @method showRanking
-     * @desc Build rankings element
      */
     function showRanking(){
         if ($('div#ranks').length === 0) {
@@ -284,8 +295,8 @@ define([
     }
 
     /**
+     * Display rank info
      * @method rankInfo
-     * @desc Display rank info
      */
     function rankInfo(){
         $('.rankInfo').click(function(){
@@ -308,6 +319,7 @@ define([
     }
 
     /**
+     * Gets avatar full path name for avatar
      * @method getAvatar
      * @param {string} avFilespec Name of file
      * @returns {string} Fully file specification of avatar
@@ -322,8 +334,8 @@ define([
     }
 
     /**
+     * Logout
      * @method logout
-     * @desc Logout
      */
     function logout(){
         app = this;
@@ -335,10 +347,10 @@ define([
     }
 
     /**
+     *  Uses parameter to appropriately set the navigation bar
+     * See {@link module:app/appLib~navPages} for param (page) reference
      * @method loginNavBar
      * @param {string} page Page key from library
-     * @desc Uses parameter to appropriately set the navigation bar
-     * See {@link module:app/appLib~navPages} for param (page) reference
      */
     var loginNavBar = function(page){
         // logged in user
@@ -375,8 +387,8 @@ define([
     };
 
     /**
+     * Show user rank
      * @method showSkills
-     * @desc Show user rank
      */
     var showSkills = function(){
         user = this.getCookie('user');
@@ -405,9 +417,9 @@ define([
     };
 
     /**
+     * Base on this param, this function returns the correct skill level title using the [skillLevel object]{@link module:app/appLib~skillLevels}
      * @method getLevelName
      * @param {number} val
-     * @desc Base on this param, this function returns the correct skill level title using the [skillLevel object]{@link module:app/appLib~skillLevels}
      */
     function getLevelName(val){
         // get the index of the skill level name
@@ -416,6 +428,7 @@ define([
     }
 
     /**
+     * Sets default loading message and initializes modal notification
      * @method loading
      * @param {string} msg Message string
      */
@@ -427,8 +440,8 @@ define([
     };
 
     /**
+     * Unblock the ui after system messages
      * @method unloading
-     * @desc Unblock the ui
      */
     var unloading = function(element){
         var data = $(window).data();
@@ -439,13 +452,18 @@ define([
         $.unblockUI();
     };
 
-    /**
-     * @desc Adds loading message to all ajax calls by default
-     */
-    $(document)
+$(document)
+        /**
+         * Adds loading message to all ajax calls by default
+         * @event module:appModule.document#ajaxStart
+         */
         .ajaxStart(function(event, xhr, options) {
             loading();
         })
+        /**
+         * Logs ajax call and result
+         * @event module:appModule.document#ajaxComplete
+         */
         .ajaxComplete(function(event, xhr, options) {
             // if options.function == logger or utility...don't log
             if (options.function === undefined){
@@ -477,12 +495,16 @@ define([
             }
             unloading();
         })
+        /**
+         * Removes modal message
+         * @event module:appModule.document#ajaxError
+         */
         .ajaxError(function(event, xhr, options) {
             unloading();
         });
 
     /**
-     * sets cookies with info
+     * Sets cookies with info
      * @method setCookie
      * @param {string} name Cookie name
      * @param {object} data Cookie data
@@ -498,6 +520,7 @@ define([
      }
 
      /**
+      * Set jQuery UI theme by string
       * @method setTheme
       * @param {string} theme JQuery ui theme string
       */
@@ -522,7 +545,7 @@ define([
     }
 
     /**
-     * gets cookies info
+     * Gets cookies info
      * @method getCookie
      * @param {string} name Cookie name
      */
@@ -531,18 +554,18 @@ define([
         return $.cookie(name);
      }
 
+    /**
+     * Pretty print a javascript object
+     * @method pprint
+     */
      function pprint(obj){
         return "<pre>" + JSON.stringify(obj, null, 2) + "</pre>";
      }
 
     /**
-     * Determines of an object is empty
-     * @return {Boolean} [description]
+     * Gathers categories from db
+     * @method getCategories
      */
-    function isEmpty(obj){
-        length = Object.getOwnPropertyNames(obj).length;
-        return  length > 0 ? false : true;
-     }
     var getCategories = function(){
         app = this;
         $.ajax({
@@ -577,7 +600,7 @@ define([
     };
 
      /**
-     * loads categories into appropriate selectmenu
+     * Loads categories into appropriate selectmenu
      * @param  {object} categories object containing all category data
      * @return none
      */
@@ -617,7 +640,6 @@ define([
      * @method getCatQuestions
      * @param {int} catID Category ID
      * @param {int} elementID Category ID
-     *
      */
     var getCatQuestions = function(catID, elementID){
         app = this;
@@ -652,75 +674,16 @@ define([
         });
     };
 
-    function escapeId(myID){
-        return "#" + myID.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\\\$&");
-    }
 
-
-    // validator selectmenu method
-    $.validator.addMethod("selectNotEqual", function(value, element, param) {
-        return param != value;
-    },"Please choose a subcategory");
-
-    // validator defaults
-    $.validator.setDefaults({
-        debug: true,
-        ignore: "",
-        errorPlacement: function (error, element) {
-            // account for jquery selectmenu
-            id = escapeId(element.context.id);
-            /*  I was lazy and copied the forms so ids are duplicated
-                The next if is to specify the element by form
-            */
-            if (id.indexOf('[') < 0){
-                // the previous test is for dynamic subcategory elements (eg. "#p_subCategory\\[2\\]")
-                currentForm = "#" + $(element).closest('form')[0].id;
-                currentId = currentForm + " " + id;
-                element = $(currentId);
-            }
-            if (element[0].nodeName === "SELECT"){
-                // account for jquery selectmenu structure which
-                // uses a span to display list/button
-                // next() refers to '#' + element.id + '-button'
-                element = element.next();
-            }
-            // last chance to init element if not done already
-            if ($(element).data('tooltipster-ns') === undefined) $(element).tooltipster();
-
-            var lastError = $(element).data('lastError'), // get the last message if one exists
-                newError = $(error).text();               // set the current message
-
-            $(element).data('lastError', newError);  // set "lastError" to the current message for the next time 'errorPlacement' is called
-
-            if(newError !== '' && newError !== lastError){  // make sure the message is not blank and not equal to the last message before allowing the Tooltip to update itself
-                $(element)
-                    .tooltipster('content', newError) // insert content into tooltip
-                    .tooltipster('show');              // show the tooltip
-            }
-        },
-        success: function (label, element) {
-            if (element.nodeName === "SELECT"){
-                // account for jquery selectmenu structure which
-                // uses a span to display list/button
-                // next() refers to '#' + element.id + '-button'
-                element = $(element).next();
-            }
-            // last chance to init element if not done already
-            if ($(element).data('tooltipster-ns') === undefined) $(element).tooltipster();
-            $(element).tooltipster('hide');  // hide tooltip when field passes validation
-        },
-        showErrors: function (errorMap, errorList) {
-              if (typeof errorList[0] != "undefined") {
-                  var position = $(errorList[0].element).position().top;
-                  $('html, body').animate({
-                      scrollTop: position
-                  }, 300);
-
-              }
-              this.defaultShowErrors();
-          }
-    });
-
+    /**
+     * Function is a helper function not to be called directly
+     * returns default messagebox properties
+     * It sets a default icon, "ok" button
+     * @method get_mboxDefaults
+     * @param {string} title Title of the messagebox
+     * @param {string} message Messagebox message
+     * @returns {object} Messagebox defaults
+     */
     function get_mboxDefaults(title, message){
         return {
             autoResize: true,
@@ -751,9 +714,18 @@ define([
         x.parentNode.insertBefore(s, x);
     })();
 
+    /* handles toggle between login and reset password panels */
     function toggleSignIn(){ $("#login-tab, #reset-tab").toggle(); }
 
-    function showLoginDialog(idx, fn){
+
+    /**
+     * Shows the login dialog box
+     * @method showLoginDialog
+     * @param {number} idx index of the tab to display
+     * - 0: Login tab
+     * - 1: Signup tab
+     */
+    function showLoginDialog(idx){
         // get logic for signup and login
         require(['pages/index','pages/signup']);
         if (!$('.modal-container').length) createLoginDialog();
@@ -765,7 +737,7 @@ define([
 
     /**
      * Returns the app object with var/functions built in
-    * @alias module:app
+    * @constructor
     */
     app = {
         /** @property  {string} defaultTheme Default theme */
@@ -785,8 +757,6 @@ define([
         init: init,
         /** @property {function} mboxDefaults gets message box default options (params: title, message) */
         mboxDefaults: get_mboxDefaults,
-        /** @property {function} isEmpty Test if object is empty*/
-        isEmpty: isEmpty,
         /** @property {function} setCookie */
         setCookie: setCookie,
         /** @property {function} getCookie */
@@ -953,6 +923,10 @@ define([
     };
 
 
+    /**
+     * create login dialog from template
+     * @method createLoginDialog
+     */
     function createLoginDialog(){
         //load the signin/up template
         $('.test').load('templates.html .modal-container', function(response, status, xhr){
@@ -994,10 +968,9 @@ define([
     }
 
     /**
-     * @memberof app
-     * @event Navigation click
-     * @desc Handles click event for Signup/SignIn buttons
+     * Handles click event for Signup/SignIn buttons
      * and determins whether to create login dialog and which tab to open
+     * @event module:appModule.document#main-nav
      */
     $(document).on('click', '.main-nav',function(event){
         user = app.getCookie('user');

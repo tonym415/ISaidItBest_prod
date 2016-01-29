@@ -1,42 +1,115 @@
 /**
 * @fileOverview
-*Library For: App
+*Library For: {@link appModule AppModule}
 *Contents:
 *-    navigation pages hash
 *-    skill levels hash
 *-    Rules text
 *-    JQuery addons
 *-    JS prototypes
+*-    Helper functions
 *
 * When the module is loaded it will be referred to as "lib"
 * @author Tony Moses
 * @version 0.1
-* @namespace app/appLib
+* @namespace appLib
 * @returns {Object} Returns library of config vars and functions
 */
-
 define(['jquery','tooltipster'], function($) {
+
+    // validator selectmenu method
+    $.validator.addMethod("selectNotEqual", function(value, element, param) {
+        return param != value;
+    },"Please choose a subcategory");
+
+    // validator defaults
+    $.validator.setDefaults({
+        debug: true,
+        ignore: "",
+        errorPlacement: function (error, element) {
+            // account for jquery selectmenu
+            id = escapeId(element.context.id);
+            /*  I was lazy and copied the forms so ids are duplicated
+                The next if is to specify the element by form
+            */
+            if (id.indexOf('[') < 0){
+                // the previous test is for dynamic subcategory elements (eg. "#p_subCategory\\[2\\]")
+                currentForm = "#" + $(element).closest('form')[0].id;
+                currentId = currentForm + " " + id;
+                element = $(currentId);
+            }
+            if (element[0].nodeName === "SELECT"){
+                // account for jquery selectmenu structure which
+                // uses a span to display list/button
+                // next() refers to '#' + element.id + '-button'
+                element = element.next();
+            }
+            // last chance to init element if not done already
+            if ($(element).data('tooltipster-ns') === undefined) $(element).tooltipster();
+
+            var lastError = $(element).data('lastError'), // get the last message if one exists
+                newError = $(error).text();               // set the current message
+
+            $(element).data('lastError', newError);  // set "lastError" to the current message for the next time 'errorPlacement' is called
+
+            if(newError !== '' && newError !== lastError){  // make sure the message is not blank and not equal to the last message before allowing the Tooltip to update itself
+                $(element)
+                    .tooltipster('content', newError) // insert content into tooltip
+                    .tooltipster('show');              // show the tooltip
+            }
+        },
+        success: function (label, element) {
+            if (element.nodeName === "SELECT"){
+                // account for jquery selectmenu structure which
+                // uses a span to display list/button
+                // next() refers to '#' + element.id + '-button'
+                element = $(element).next();
+            }
+            // last chance to init element if not done already
+            if ($(element).data('tooltipster-ns') === undefined) $(element).tooltipster();
+            $(element).tooltipster('hide');  // hide tooltip when field passes validation
+        },
+        showErrors: function (errorMap, errorList) {
+              if (typeof errorList[0] != "undefined") {
+                  var position = $(errorList[0].element).position().top;
+                  $('html, body').animate({
+                      scrollTop: position
+                  }, 300);
+
+              }
+              this.defaultShowErrors();
+          }
+    });
+
+
+
     /**
-     * @typedef {object} navPages
-     * @prop {string} key Page Id
-     * @prop {string} value Filespec
-     * @memberof app/appLib
-     * @desc This object contains page aliases and can be used to refer to site pages and helps preserve DRY method
+     * Utility function to format theme name correctly
+     * @private
+     * @method escapeId
+     * @param {string} myId element id
+     * @returns {string}
+     *
+     */
+    function escapeId(myID){
+        return "#" + myID.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\\\$&");
+    }
+
+
+
+    /**
+     * @name app/appLib#navPages
+     * @readonly
+     * @prop {string} key navPages.key
+     * @prop {string} value navPages.value
+     * @desc
+     * For usage example see:
+     * - [Navigation Bar]{@link module:app~loginNavBar} <a href='app.js.html#sunlight-1-line-348'> (app.js line 348)</a>
      * @example
      * // returns "index.html
      * lib.navPages.home;
      * @returns {string} Returns file name for alias
-     */
-
-    /**
-     * @typedef {array} skillLevels
-     * @desc This is an array of objects containing skill title/desc. This object will be used to
-     * refer to site pages and helps preserve DRY method.
-     * For usage example see: {@link module:app~getLevelName}<a href='app.js#sunlight-1-line-407'>(app.js line 104)</a>
-     * @memberof app/appLib
-     * @returns {string} Returns file name for alias
-     */
-   /** @type {navPages} */
+    */
     var navPages = {
         'home' : 'index.html',
         'game' : 'game.html',
@@ -46,8 +119,16 @@ define(['jquery','tooltipster'], function($) {
         'admin': 'admin.html'
     };
 
-
-   /** @type {skillLevels} */
+    /**
+     * @name app/appLib#skillLevels
+     * @readonly
+     * @prop {string} title
+     * @prop {string} description
+     * @desc This is an array of objects containing skill title/desc. This object will be used to
+     * refer to site pages and helps preserve DRY method.
+     * For usage example see: {@link module:app~getLevelName} <a href='app.js.html#sunlight-1-line-407'> (app.js line 104)</a>
+     * @returns {string} Returns file name for alias
+    */
     var skillLevels = [{
             "title" : "Blowhard",
             "description" : "Look who hasn't even won eleven games....."
@@ -179,7 +260,7 @@ define(['jquery','tooltipster'], function($) {
      * @desc  Extends javascript String
      * The function takes string and returns capitalized string
      * @example
-     * //retuns Error
+     * //returns Error
      * var status = "error";
      * status.capitalize();
      * @return {String} capitalized string
@@ -209,7 +290,7 @@ define(['jquery','tooltipster'], function($) {
 
     /**
      * @global
-     * @method prefix
+     * @method serializeForm
      * @desc  Extends JQuery fn
      * Converts form data to js object
      * @example
@@ -239,7 +320,7 @@ define(['jquery','tooltipster'], function($) {
      * @desc  Extends Javascript String
      * Converts seconds as string/int to HH:MM:SS
      * @example
-     * //retuns
+     * //returns
      * @return {string} string
      */
     String.prototype.toMMSS = function () {
@@ -262,10 +343,8 @@ define(['jquery','tooltipster'], function($) {
         /**
         * @method getFooterText
         * @memberof app/appLib
-        * @desc
-        * - {string} txtFooter See {@link module:app/appLib~txtFooter}
-        * - {string} tplRules See {@link module:app/appLib~tplRules}
-        *
+        * @see {@link txtFooter}
+        * @see {@link app/appLogin~tplRules}
         */
         getFooterText: function(){ return txtFooter + tplRules;}
     }

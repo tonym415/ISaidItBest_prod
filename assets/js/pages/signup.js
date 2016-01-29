@@ -1,7 +1,6 @@
 /**
 * @fileOverview Handles js interaction for the signup page
-* @module signup
-* @desc The signup module controls the signup/registration page on the site
+* The signup module controls the signup/registration page on the site
 * It is separated so that the code can be called on any appropriate (pages
 * viewed by unauthorize access)
 *
@@ -9,12 +8,18 @@
 * -  submission of registration data
 * -  validation of the registration form
 * - username availability check
+* @module signup
 * @author Tony Moses
 * @version 0.1
  */
 require(['jquery','app' ,  'validate','jqueryUI', 'steps'], function($, app){
     /**
-     *  @desc Submits an ajax call to send signup info to the database
+     * namespace for dom element event attachment
+     * @namespace element
+     */
+
+    /**
+     *  Submits an ajax call to send signup info to the database
      *  @method submitUserInfo
      *  @param {object} data Form info used to register user
      */
@@ -52,10 +57,11 @@ require(['jquery','app' ,  'validate','jqueryUI', 'steps'], function($, app){
      }
 
 
-    // wizardify form and set up validation
      /**
-      * @desc Setup for form styling (steps plugin w/ events) and validation setup
-      */
+     * Initializes form with jquery plugins ([steps]{@link steps} and [validate]{@link validate})
+     * to set the ui and events of the form while activate the validator
+     * @param {jQuery} form jquery form element
+     */
     $('#signup')
         /**
          * @desc Specific config options and event handling
@@ -172,12 +178,22 @@ require(['jquery','app' ,  'validate','jqueryUI', 'steps'], function($, app){
             }
         });
 
-    //clear availibility validations
+    /**
+     * <h3>Event Listener</h3>
+     * clear availibility validations
+     * @listens element#blur
+     * @param {blur} sigup#username username field in form
+     */
     $("#signup #username").on('blur', function(){
         $('#username_availability_result').empty();
     });
 
-    // check username availability
+     /**
+     * <h3>Event Listener</h3>
+     * check username availability
+     * @listens element#keyup
+     * @param {keyup} sigup#username username field in form
+     */
     $("#signup #username").on('keyup', function(){
         username = $(this).val();
         minChars = 3;

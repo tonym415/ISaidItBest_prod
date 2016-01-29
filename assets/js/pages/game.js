@@ -3,9 +3,7 @@
 * @module game
 * @author Tony Moses
 * @version 0.1
-i*
-* @typedef {object} setupStructure
- */
+*/
 require([
     'jquery',
     'app',
@@ -17,6 +15,10 @@ require([
     'cookie',
     'blockUI'
 ], function($, app, lib){
+    /**
+     * @typedef {object} formValidator
+     * @property {function} submitHandler actions to be taken upon form submit
+     */
     // game parameters global var
     var user,
     timeout,
@@ -94,12 +96,11 @@ require([
     })();
 
     /**
-     *  Recursive poller of the db to get players and start game
-     *  on success = loads the debate
-     *  on error = gives the user another chance to search for a game
-     * @public
      * @method getGame
-     *
+       @desc
+     *  Recursive poller of the db to get players and start game
+     *  - on success: loads the debate
+     *  - on error: gives the user another chance to search for a game
      */
     function getGame(){
         // create ajax poll
@@ -180,7 +181,10 @@ require([
     }
 
 
-    /** set up parameter forms for validation */
+    /**
+    * set up all parameter forms for validation
+    * @type {formValidator}
+    */
     (function(){
         // retrieve a param forms
         forms = $('div.paramDiv').children('form');
@@ -209,10 +213,9 @@ require([
     })();
 
     /**
-     * validation for debate game ui
-      @memberof game
-     * @event Game submission of "gameUI"
-     * */
+     * @desc validation for debate game ui gameUI"
+     * @type {formValidator}
+    */
     $('#gameUI').validate({
         submitHandler: function(){
             data = $(this.currentForm).serializeForm();
@@ -393,8 +396,8 @@ require([
     }
 
     /**
-     * @memberof game
-     * @struct {setupStructure}
+       @memberof game
+       @type {Validator}
      * @desc Validation for voting form "debateVote"
      * */
     $('#debateVote').validate({
@@ -561,6 +564,10 @@ require([
         }
     });
 
+    /**
+     * Toggle betwee the paramPanel and the gamePanel
+     *
+     */
     function toggleParams(){
         // disable/enable params
         $(paramPanel).toggleClass('ui-state-disabled');
