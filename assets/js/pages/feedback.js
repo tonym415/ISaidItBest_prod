@@ -71,52 +71,74 @@ require(['jquery','app' , 'validate','jqueryUI'], function($, app){
     }
 
     /**
-     * validate signup form with jquery plugin ([validate]{@link validate})
-     * @method validate
+     * @namespace feedbackForm
      */
-    $("#frmFeedback").validate({
-        submitHandler: function(){
-            formData = $(this.currentForm).serializeForm();
-            formData.function = "FB";
-            submitFeedback(formData);
-        },
-        rules: {
-            category: {
-                required: {
-                    depends: function(element){
-                        // validate value
-                        var invalidValue = "0",
-                        currentValue = $(element).val(),
-                        valid = invalidValue != currentValue;
-                        // if not valid...are you sure?
-                        if (!categoryValid){
-                            confirmCategory(valid);
-                        }else{
-                            valid = categoryValid;
+    $("#frmFeedback")
+        /**
+         * validate feedback form with jquery plugin {@link $.fn.validate})
+         * @namespace validator
+         * @memberof module:feedback~feedbackForm
+         * @type {$.fn.validate}
+         * @param {element} form implied param
+         */
+        .validate({
+            /**
+             * Preps data to be submitted as feedback
+             * @method submitHandler
+             * @memberof module:feedback~feedbackForm.validator
+             */
+            submitHandler: function(){
+                formData = $(this.currentForm).serializeForm();
+                formData.function = "FB";
+                submitFeedback(formData);
+            },
+            /**
+             * @type {object}
+             * @name rules
+             * @memberof module:feedback~feedbackForm.validator
+             */
+            rules: {
+                category: {
+                    required: {
+                        depends: function(element){
+                            // validate value
+                            var invalidValue = "0",
+                            currentValue = $(element).val(),
+                            valid = invalidValue != currentValue;
+                            // if not valid...are you sure?
+                            if (!categoryValid){
+                                confirmCategory(valid);
+                            }else{
+                                valid = categoryValid;
+                            }
+                            return valid;
                         }
-                        return valid;
                     }
+                },
+                name: "required",
+                email: {
+                    required: true,
+                    email: true
+                },
+                message: {
+                    required: true,
+                    minlength: 2
                 }
             },
-            name: "required",
-            email: {
-                required: true,
-                email: true
-            },
-            message: {
-                required: true,
-                minlength: 2
+            /**
+             * @type {object}
+             * @name messages
+             * @memberof module:feedback~feedbackForm.validator
+             */
+            messages: {
+                category: "Please select a category",
+                name: "Please enter your name",
+                message: "Please enter your message",
+                email: {
+                    required: "Please enter a valid email address",
+                    email: "Your email address must be in the format of name@domain.com"
+                }
             }
-        },
-        messages: {
-            category: "Please select a category",
-            name: "Please enter your name",
-            message: "Please enter your message",
-            email: {
-                required: "Please enter a valid email address",
-                email: "Your email address must be in the format of name@domain.com"
-            }
-        }
     });
 
     /**

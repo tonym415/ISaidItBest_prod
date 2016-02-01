@@ -341,6 +341,7 @@ define([
         app = this;
         $('.logout').on('click', function(e){
             e.preventDefault();
+            $.setCookie('user',null);
             $.removeCookie('user');
             window.location.assign(app.pages.home);
         });
@@ -455,14 +456,14 @@ define([
 $(document)
         /**
          * Adds loading message to all ajax calls by default
-         * @event module:appModule.document#ajaxStart
+         * @event module:appModule#document_ajaxStart
          */
         .ajaxStart(function(event, xhr, options) {
             loading();
         })
         /**
          * Logs ajax call and result
-         * @event module:appModule.document#ajaxComplete
+         * @event module:appModule#document_ajaxComplete
          */
         .ajaxComplete(function(event, xhr, options) {
             // if options.function == logger or utility...don't log
@@ -497,7 +498,7 @@ $(document)
         })
         /**
          * Removes modal message
-         * @event module:appModule.document#ajaxError
+         * @event module:appModule#document_ajaxError
          */
         .ajaxError(function(event, xhr, options) {
             unloading();
@@ -600,7 +601,8 @@ $(document)
     };
 
      /**
-     * Loads categories into appropriate selectmenu
+     * Loads categories into appropriate selectmenus
+     * @method loadCategories
      * @param  {object} categories object containing all category data
      * @return none
      */
@@ -970,7 +972,7 @@ $(document)
     /**
      * Handles click event for Signup/SignIn buttons
      * and determins whether to create login dialog and which tab to open
-     * @event module:appModule.document#main-nav
+     * @event module:appModule#document_main-nav_click
      */
     $(document).on('click', '.main-nav',function(event){
         user = app.getCookie('user');

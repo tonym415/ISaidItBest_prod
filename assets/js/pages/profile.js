@@ -74,6 +74,7 @@ require([
 
     /*
      * Gathers form data and sanitizes form data to remove password info if neccasary
+     * @method
      */
     function getProfileData(){
         formData = $('form').serializeForm();
@@ -99,7 +100,7 @@ require([
      */
     $("form")
         /**  Initializes steps wizard of sigup form
-         * @namespace stepsProfileForm
+         * @namespace steps
          * @memberof module:profile~profileForm
          * @see $.fn.steps
          */
@@ -154,14 +155,15 @@ require([
             }
      })
      /** validate profile form submit
-     * @namespace validateProfileForm
+     * @namespace validator
+     * @implements $.fn.validate
      * @memberof module:profile~profileForm
      */
      .validate({
         /**
          * Callback for handling profileForm.
          * @function submitHandler
-         * @memberof! module:profile~profileForm.validateProfileForm
+         * @memberof module:profile~profileForm.validator
          * @param {element} form
          */
          submitHandler: function(){
@@ -177,8 +179,7 @@ require([
         },
         /**
          * @enum {object}
-         * @memberof module:profile.profileForm
-         * @memberof! module:profile~profileForm.validateProfileForm
+         * @memberof module:profile~profileForm.validator
         */
         rules: {
             first_name: "required",
@@ -232,7 +233,7 @@ require([
         },
         /**
          * @enum {object}
-         * @memberof! module:profile~profileForm.validateProfileForm
+         * @memberof module:profile~profileForm.validator
         */
         messages: {
             first_name: "Please enter your first name",
@@ -265,28 +266,15 @@ require([
     });
 
     /**
-     * This event is triggered only for ajax uploads and after upload is completed
-     * for each thumbnail file. This event is triggered ONLY for ajax uploads and in the
-     * following scenarios:
-     * - When the upload icon in each preview thumbnail is clicked and file is uploaded successfully, OR
-     * - When you have uploadAsync set to true and you have triggered batch upload. In this case,
-     * the fileuploaded event is triggered after every individual selected file is uploaded successfully.
-     * @event $.fn.fileinput#upload
+     * @see $.fn.fileinput.upload
+     * @event module:profile#fileinput_upload
      * @param {event} event
      * @param {object} data This is a data object that sends the following information
-     * - <code>form</code> - the FormData object which is passed via XHR2 (or empty if unavailable)
-     * - <code>files</code> - the file stack array (or empty if unavailable)
-     * - <code>extra</code> - the <code>uploadExtraData</code> settings for the plugin (or empty if unavailable)
-     * - <code>response</code> - the ( sent via ajax response (or empty if unavailable)
-     * - <code>reader</code> - the FileReader instance (or empty if unavailable)
-     * - <code>jqXHR</code> - the <code>jQuery XMLHttpRequest</code> object used for the transaction (or empty if unavailable)
      * @param {string} previwId the identifier of each file's parent thumnail div element in the preview windo
      * @param {number} index the zero-based index of teh file in the stack
      * @listens $.fn.fileinput#fileuploaderror
      * @listens $.fn.fileinput#fileuploaded
-     * @see http://plugins.krajee.com/file-input#event-fileuploaderror
-     * @see http://plugins.krajee.com/file-input#event-fileuploaded
-    */
+     */
     $('#uploader')
         .on('fileuploaderror', function(event, data, previewId, index) {
             var form = data.form, files = data.files, extra = data.extra,
@@ -329,33 +317,55 @@ require([
 
     /**
      * Constructs the Avatar uploader
-     * @constructs fileinput
      * @method initAvatar
-     * @memberof fileinput
-     * @see http://plugins.krajee.com/file-input#ajax-async
      */
     function initAvatar(){
         avInit = true;
-        $('#avatar').fileinput({
+        /**
+         * Constructs the Avatar uploader
+           @enum
+         * @memberof $.fn.fileinput
+         * @see http://plugins.krajee.com/file-input#ajax-async
+         */
+        var fileinputConfig = {
+            /** @type {boolean} */
             showPreview: true,
+            /** @type {boolean} */
             uploadAsync: true,
+            /** @type {string} */
             uploadUrl: app.engine,
+            /** @type {object}  */
             uploadExtraData: getProfileData,
+            /** @type {boolean} */
             overwriteInitial: true,
+            /** @type {number} */
             maxFileSize: 1500,
+            /** @type {boolean} */
             showClose: false,
+            /** @type {boolean} */
             showCaption: false,
+            /** @type {string} */
             browseLabel: ' ',
+            /** @type {string} */
             removeLabel: ' ',
+            /** @type {string} */
             browseIcon: '<i class="glyphicon glyphicon-folder-open"></i>',
+            /** @type {string} */
             removeIcon: '<i class="glyphicon glyphicon-remove"></i>',
+            /** @type {string} */
             removeTitle: 'Cancel or reset changes',
+            /** @type {element} */
             elErrorContainer: '#kv-avatar-errors',
+            /** @type {string} */
             msgErrorClass: 'alert alert-block alert-danger',
+            /** @type {string}  */
             defaultPreviewContent: '<img src="' + app.getAvatar() + '" alt="Your Avatar" class="avatar">',
+            /** @type {object} */
             layoutTemplates: {main2: '{preview}  {remove} {browse}'},
+            /** @type {array} */
             allowedFileExtensions: ["jpg", "png", "gif"]
-        });
+        }
+        $('#avatar').fileinput(fileinputConfig);
     }
 
     /* preview selected theme */
@@ -369,9 +379,13 @@ require([
         }
     });
 
-    /* toggle password change fieldset */
-    $('#togPass').on('change', function(){
-        $(this).parent().parent().siblings().slideToggle('slow');
-    }).parent().parent().siblings().hide();
+    $('#togPass')
+        /**
+         * toggle password change fieldset
+         * @event module:profile#togPass_change
+         */
+        .on('change', function(){
+            $(this).parent().parent().siblings().slideToggle('slow');
+        }).parent().parent().siblings().hide();
 
 });

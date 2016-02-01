@@ -1,6 +1,16 @@
+/**
+ * @overview This file is the library for the admin page
+ * It contains configuration objects for forms, grids, etc.
+ * @namespace adminLib
+ * @memberof module:admin
+ */
 define(['jquery', 'app'], function($, app) {
-    /*
-    * multi-form managment object
+    /**
+    * Multi-form managment object
+    * The purpose of this object is to consolidate configuration settings for all forms on admin page
+    * For more information or instructions on extending this object see the [tutorial]{@tutorial add-form-config}
+    * @memberof adminLib
+    * @enum {object}
     */
     var formManager = {
         "createCategory" :{
@@ -95,7 +105,14 @@ define(['jquery', 'app'], function($, app) {
         }
     };
 
-    gridDefaults = {
+    /**
+     * Default grid configuration settings.  For a more in depth look at the initialization options
+     * see [options]{@link http://www.trirand.com/jqgridwiki/doku.php?id=wiki:options}
+     * @enum {object}
+     * @memberof adminLib
+     * @see $.fn.jqGrid
+     */
+    var gridDefaults = {
         loadError:function(xhr,status, err){
             try {
                app.dMessage("Error loading Users", '<div class="ui-state-error">'+ xhr.responseText +'</div>');
@@ -119,7 +136,14 @@ define(['jquery', 'app'], function($, app) {
        jqModal: true
     };
 
-    gridOptions = {
+    /**
+     * Specific configuration settings for grids.  For a more in depth look at the initialization options
+     * see [options]{@link http://www.trirand.com/jqgridwiki/doku.php?id=wiki:options}
+     * @enum  {object}
+     * @memberof adminLib
+     * @see $.fn.jqGrid
+     */
+    var gridOptions = {
         logGrid: {
             url: app.engine + "?function=GL",
             jsonReader: {
@@ -201,13 +225,17 @@ define(['jquery', 'app'], function($, app) {
            pager: "#userPager"
        }
     };
-   function getGrid(element){
+    /**
+     * @method
+     * @param {string} element container element name for grid
+     */
+    function getGrid(element){
         gridName = element.substring(1);
         // get a copy of defaults to modify
         gDefaults = $.extend(true, {}, gridDefaults);
         gridSettings = $.extend(gDefaults, gridOptions[gridName]);
         return gridSettings;
-   }
+    };
 
     return {
         formManager: formManager,

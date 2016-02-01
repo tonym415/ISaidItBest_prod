@@ -1,24 +1,23 @@
-/*
-	Handles js interaction for the signup page
+/**
+    Handles js interaction for the index page used in conjunction with
+    {@link module:login Login Module} and {@link module:signup Signup Module}
+    @module main
  */
 require(['jquery','app'], function($, app){
     var showLogin = app.init('home');
+    // show signup if showLogin is true
     if (showLogin) app.showLoginDialog(1);
 
-	/* Facebook code */
-	(function(d, s, id) {
-		var js, fjs = d.getElementsByTagName(s)[0];
-		if (d.getElementById(id)) return;
-		js = d.createElement(s); js.id = id;
-		js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=1518603065100165";
-		fjs.parentNode.insertBefore(js, fjs);
-	}(document, 'script', 'facebook-jssdk'));
+    /* Facebook code */
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=1518603065100165";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
 
-
-
-
-
-	// This is called with the results from from FB.getLoginStatus().
+    // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
     console.log('statusChangeCallback');
     console.log(response);
@@ -76,7 +75,7 @@ require(['jquery','app'], function($, app){
 
   };
 
- 
+
   // Here we run a very simple test of the Graph API after login is
   // successful.  See statusChangeCallback() for when this call is made.
   function testAPI() {

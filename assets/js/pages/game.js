@@ -3,7 +3,8 @@
 * @module game
 * @author Tony Moses
 * @version 0.1
-*/
+*
+ */
 require([
     'jquery',
     'app',
@@ -15,10 +16,6 @@ require([
     'cookie',
     'blockUI'
 ], function($, app, lib){
-    /**
-     * @typedef {object} formValidator
-     * @property {function} submitHandler actions to be taken upon form submit
-     */
     // game parameters global var
     var user,
     timeout,
@@ -38,9 +35,10 @@ require([
     app.init('game');
     user = app.getCookie('user');
 
-    /*
+    /**
      * Add event to enable test buttons on page
-     * TODO: following line must be commented for production
+     * @event module:game#document_test_click
+     * @TODO following event must be commented for production
      */
     $(document).on('click', '.test', function(){
         app.toggleTestButtons();
@@ -49,6 +47,7 @@ require([
 
     /**
      * function loads meta data (eg. time options/wager options
+     * @method loadMeta
      */
     (function loadMeta(){
         $.ajax({
@@ -96,11 +95,10 @@ require([
     })();
 
     /**
-     * @method getGame
-       @desc
      *  Recursive poller of the db to get players and start game
      *  - on success: loads the debate
      *  - on error: gives the user another chance to search for a game
+     * @method getGame
      */
     function getGame(){
         // create ajax poll
@@ -182,8 +180,8 @@ require([
 
 
     /**
-    * set up all parameter forms for validation
-    * @type {formValidator}
+    * Anonymous closure to set up all parameter forms for validation
+    * @method <anonymous>
     */
     (function(){
         // retrieve a param forms
@@ -213,23 +211,39 @@ require([
     })();
 
     /**
-     * @desc validation for debate game ui gameUI"
-     * @type {formValidator}
+     * HTML element containing game
+     * @namespace gameUI
     */
-    $('#gameUI').validate({
-        submitHandler: function(){
-            data = $(this.currentForm).serializeForm();
-            data.user_id = user.user_id;
-            submitGame(data);
-            // get the time left on the clock to know
-            // how long to wait for other users
-            timeLeft = gameClock.getTime().time;
-            gameClock.stop();
-        }
+    $('#gameUI')
+        /**
+         * validate game entry form "gameUI"
+         * @namespace validator
+         * @memberof module:game~gameUI
+         */
+        .validate({
+            /**
+             * Callback for submission of game
+             * Gathers form data, adds user_id and stops the
+             * game clock
+             * @todo use the time left on the game clock to determine wait time
+             * @method
+             * @memberof module:game~gameUI.validator
+             * @type {$.fn.validate}
+             * @param {element} form implied param
+             */
+            submitHandler: function(){
+                data = $(this.currentForm).serializeForm();
+                data.user_id = user.user_id;
+                submitGame(data);
+                // get the time left on the clock to know
+                // how long to wait for other users
+                timeLeft = gameClock.getTime().time;
+                gameClock.stop();
+            }
     });
 
     /**
-     * Submits game data
+     * Submits game data via AJAX
      * @method submitGame
      * @param {object} form data and current user id
      */
@@ -365,8 +379,8 @@ require([
             );
         });
 
-        /** create selectable and disable current user as selection */
-        $('#selectable').selectable({
+        $('#selectable')
+            .selectable({
             filter:'li.selectable',
             selected: function(event, ui){
                 // deselect selection if selected previously
@@ -396,12 +410,24 @@ require([
     }
 
     /**
-       @memberof game
-       @type {Validator}
-     * @desc Validation for voting form "debateVote"
-     * */
-    $('#debateVote').validate({
-        submitHandler: function(){
+     * HTML element containing vote panel
+       @namespace debateVote
+     */
+    $('#debateVote')
+        /**
+         * Validation for voting form "debateVote"
+         * @namespace validator
+         * @memberof module:game~debateVote
+         */
+        .validate({
+            /**
+             * Callback method for vote submission
+             * @method
+             * @type {$.fn.validate}
+             * @memberof module:game~debateVote.validator
+             * @param {element} form implied param
+             */
+            submitHandler: function(){
             selectedComment = $('#selectable').find('li').hasClass(onStateClass);
             if (selectedComment){
                 selectedComment =  $('#selectable').find('li.ui-state-highlight');
@@ -566,7 +592,6 @@ require([
 
     /**
      * Toggle betwee the paramPanel and the gamePanel
-     *
      */
     function toggleParams(){
         // disable/enable params
@@ -575,13 +600,17 @@ require([
         $(gamePanel).toggleClass('ui-state-disabled');
     }
 
+    /**
+     * Toggle between game and vote panels
+     *
+     */
     function toggleGame(){
         $('#debate, .debateVote').toggle();
     }
 
     /**
      * Game Clock instantiation
-     * @type {FlipClock}
+     * @returns {$.fn.FlipClock}
      */
     gameClock = $('#game_timer').FlipClock({
         autoStart: false,
@@ -597,7 +626,7 @@ require([
     });
     /**
      *  Wait Clock instantiation
-     * @type {FlipClock}
+     * @returns {$.fn.FlipClock}
      */
     waitClock = $('#wait_timer').FlipClock(10,{
         autoStart: false,
@@ -658,6 +687,10 @@ require([
         }
     }
 
+    /**
+     * Click event for canceling a search for a game
+     * @event module:game#cancel_click
+     */
     $('#cancel').click(function(){
         $('#game_panel').unblock();
         // enable/disable appropriate panels
@@ -691,6 +724,11 @@ require([
         });
     });
 
+    /**
+     * Function used as callback to determine the success
+     * of the cancellation
+     * @Callback cancelGame
+     */
     function cancelGame(callback){
         params.function = 'CG';
         params.id = 'cancelGame';
@@ -703,6 +741,10 @@ require([
         });
     }
 
+    /**
+     * Opens an accordion panel at a certain position
+     * @method
+     */
     function openAccordionPanel(position) {
         var current = app.accordion.accordion("option","active");
         maximum = app.accordion.find("h3").length;
@@ -715,7 +757,10 @@ require([
     }
 
 
-    // load question box with values based on category/subcategory
+    /**
+     * Load question box with values based on category/subcategory
+     * @method
+     */
     function primeQBox(catID){
         // destination selectmenu
         q_select = '#paramQuestions';
@@ -730,68 +775,75 @@ require([
         app.getCatQuestions(catID, q_select);
     }
 
-    // set a watch for additions/removal on the dom for select boxes (not including template)
     $("select[id*=Category]:not([id*=temp])")
-    .livequery(function(){
-        // id = $(this).prop('id');
-        id = '#' + $(this)[0].form.id + " " +  $(this).prop('id');
-        // add validation
-        $(this).closest('form').validate();
-        $(this).rules("add", { selectNotEqual : "" });
+        /**
+         * Set a watch for additions/removal on the dom for select boxes (not including template)
+         * @event module:game#Category_livequery
+         * @type {$.fn.livequery}
+         */
+        .livequery(function(){
+            // id = $(this).prop('id');
+            id = '#' + $(this)[0].form.id + " " +  $(this).prop('id');
+            // add validation
+            $(this).closest('form').validate();
+            $(this).rules("add", { selectNotEqual : "" });
 
-        // selectmenu options
-        mnuOpts = {
-            change: function(){
-                // load appropriate questions for selection
-                primeQBox($(this).val());
+            // selectmenu options
+            mnuOpts = {
+                change: function(){
+                    // load appropriate questions for selection
+                    primeQBox($(this).val());
 
-                // validate select
-                $(this).closest('form').validate().element(this);
-                //  bind change event to all select menus to enable subcategory menu selection
-                boolSubs = $(this).siblings('input').prop("checked");
+                    // validate select
+                    $(this).closest('form').validate().element(this);
+                    //  bind change event to all select menus to enable subcategory menu selection
+                    boolSubs = $(this).siblings('input').prop("checked");
 
-                // get clones if present
-                clones = $(this).parent().siblings('.clone');
-                hasClones = clones.length > 0;
-                // remove clones
-                if (hasClones){
-                    // kill all clones below current check
-                    $.each(clones, function(){
-                        $(this).remove();
-                    });
+                    // get clones if present
+                    clones = $(this).parent().siblings('.clone');
+                    hasClones = clones.length > 0;
+                    // remove clones
+                    if (hasClones){
+                        // kill all clones below current check
+                        $.each(clones, function(){
+                            $(this).remove();
+                        });
+                    }
+
+                    // if sub-categories are requested
+                    if (boolSubs) app.subCheck($(this));
                 }
+            };
+            settings = $.extend({}, app.selectMenuOpt, mnuOpts);
+            $(this).selectmenu(settings);
+        });
 
-                // if sub-categories are requested
-                if (boolSubs) app.subCheck($(this));
-            }
-        };
-        settings = $.extend({}, app.selectMenuOpt, mnuOpts);
-        $(this).selectmenu(settings);
-    });
-
-    // set watch for additions/removal on the dom for checkboxes (not including template)
     $("input[id*=CategoryChk]:not([id*=temp])")
-    .livequery(function(){
-        $(this)
-        .change(function(event){
-            event.stopPropagation();
-            if($(this).is(':checked')){
-                var select = $(this).siblings('select');
-                app.subCheck(select);
-            }else{
-                // load appropriate questions for selection
-                primeQBox("#" + $(this).siblings('select').prop('id'));
+        /**
+         * Set watch for additions/removal on the dom for checkboxes (not including template)
+         * @event module:game#CategoryChk_livequery
+         * @type {$.fn.livequery}
+         */
+        .livequery(function(){
+            $(this)
+                .change(function(event){
+                    event.stopPropagation();
+                    if($(this).is(':checked')){
+                        var select = $(this).siblings('select');
+                        app.subCheck(select);
+                    }else{
+                        // load appropriate questions for selection
+                        primeQBox("#" + $(this).siblings('select').prop('id'));
 
-                // get all p tags that are not the original and do not contain the submit button
-                cloneP = $(this).parent().siblings('.clone');
-                // kill all clones below current check
-                $.each(cloneP, function(){
-                    $(this).remove();
+                        // get all p tags that are not the original and do not contain the submit button
+                        cloneP = $(this).parent().siblings('.clone');
+                        // kill all clones below current check
+                        $.each(cloneP, function(){
+                            $(this).remove();
+                        });
+                    }
                 });
-            }
-        }
-               );
-    });
+        });
 
 
     /* Facebook Code */
