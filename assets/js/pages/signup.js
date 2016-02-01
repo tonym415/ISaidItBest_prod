@@ -58,6 +58,8 @@ require(['jquery','app' ,  'validate','jqueryUI', 'steps'], function($, app){
 
 
      /**
+        Used in conjunction with {@link module:login Login Module} and {@link module:main Signup Module}
+
      * Initializes form with jquery plugins ([steps]{@link steps} and [validate]{@link validate})
      * to set the ui and events of the form while activate the validator
      * @param {jQuery} form jquery form element

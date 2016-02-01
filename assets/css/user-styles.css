@@ -69,6 +69,7 @@ body > #container { height: auto; min-height: 98%; }
   /* padding: 50px; 
   text-align: center;*/
   width: 11.4em;
+  box-shadow: 10px 10px 5px #888888;
 }
 
 .winnerTitle {

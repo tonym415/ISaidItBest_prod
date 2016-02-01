@@ -18,40 +18,40 @@ requirejs.config({
         jquery: [
             '//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery',
             // if the CDN location fails, load from this location
-            'lib/plugins/jquery-1.11.3'
+            'plugins/jquery-1.11.3'
         ],
         jqueryUI: [
             '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui',
             // '//code.jquery.com/ui/1.11.4/jquery-ui.min',
             // if the CDN location fails, load from this location
-            'lib/plugins/jquery-ui'
+            'plugins/jquery-ui'
         ],
         validate: [
             '//cdn.jsdelivr.net/jquery.validation/1.14.0/jquery.validate',
             // if the CDN location fails, load from this location
-            'lib/plugins/jquery.validate'
+            'plugins/jquery.validate'
         ],
-        additional_methods: 'lib/plugins/additional-methods',
-        // plugins
-        livequery: 'lib/plugins/jquery.livequery',
-        flipclock: 'lib/plugins/flipclock',
-        cookie: 'lib/plugins/jquery-cookie',
-        steps: 'lib/plugins/jquery.steps',
-        blockUI: 'lib/plugins/jquery.blockUI',
-        avatar: 'lib/plugins/avatar',
-        tooltipster: 'lib/plugins/jquery.tooltipster',
-        upload: 'lib/plugins/jquery.fileupload',
+        additional_methods: 'plugins/additional-methods',
+        // pluginss
+        livequery: 'plugins/jquery.livequery',
+        flipclock: 'plugins/flipclock',
+        cookie: 'plugins/jquery-cookie',
+        steps: 'plugins/jquery.steps',
+        blockUI: 'plugins/jquery.blockUI',
+        avatar: 'plugins/avatar',
+        tooltipster: 'plugins/jquery.tooltipster',
+        upload: 'plugins/jquery.fileupload',
         bootstrap : [
             // '//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min',
-            'lib/plugins/bootstrap'
+            'plugins/bootstrap'
         ],
-        fileInput : 'lib/plugins/fileinput.min',
+        fileInput : 'plugins/fileinput.min',
         jqGrid: [
-            // '//cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/js/i18n/grid.locale-en',
-            'lib/plugins/grid.locale-en'
+            // '//cdnjs.cloudflare.com/ajax/pluginss/jqgrid/4.6.0/js/i18n/grid.locale-en',
+            'plugins/grid.locale-en'
             ],
-        jqGridSrc: [//'//cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/js/jquery.jqGrid.src',
-            'lib/plugins/jquery.jqgrid.src']
+        jqGridSrc: [//'//cdnjs.cloudflare.com/ajax/pluginss/jqgrid/4.6.0/js/jquery.jqGrid.src',
+            'plugins/jquery.jqgrid.src']
     },
     shim: {
         jquery: {

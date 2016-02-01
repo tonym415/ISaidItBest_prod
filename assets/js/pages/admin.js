@@ -1,5 +1,7 @@
-/*
-    Handles js interaction for the signup page
+/**
+    Handles js interaction for the admin page
+    This page provides a UI for data manipulation
+    @module admin
  */
 require([
     'app',
@@ -14,6 +16,10 @@ require([
     app.init('admin');
 
 
+    /**
+     * Utility function to submit information for the various forms
+     * @method submitInfo
+     */
     function submitInfo(data, desc){
         $.ajax({
             contentType: "application/x-www-form-urlencoded",
@@ -81,6 +87,11 @@ require([
             });
         }
 
+    /**
+     * Utility function for resetting forms
+     * @method
+     * @param {element} form jQuery form instance
+     */
     function resetForm(form){
         form.children().not('.clone')
             .find(':checkbox').prop('checked', false)
@@ -90,7 +101,10 @@ require([
         attachValidator(form.prop('id'));
     }
 
-    /* Validation of forms */
+    /**
+    * Validation of forms
+    * @method valHandler
+    */
     valHandler = function(){
         formData = $(this.currentForm).serializeForm();
         formID = formData.id;
@@ -99,6 +113,14 @@ require([
         return false;
     };
 
+    /**
+     * Utility function to load form dynamically
+     * Gets all forms on current panel and calls {@link module:admin~attachValidator}
+     * to initialize [validator]{@link $.fn.validate}
+     * @method formLoad
+     * @param {event} e event
+     * @param {element} ui jQuery tab
+     */
     function formLoad(e, ui){
         panel = (ui.newPanel === undefined) ? ui.panel : ui.newPanel;
         // find forms for tab
@@ -128,25 +150,50 @@ require([
         });
     }
 
+    /**
+     * jQuery Tab default options
+     * Adds a create and activate event for all tabs
+     */
     var tabOpts = {
-        // width: 650,
         create: formLoad,
         activate: formLoad,
-        // heightStyle: 'fill'
     };
+    /* merge default tab options from {@link app} */
     settings = $.extend({}, app.tabOptions, tabOpts);
-    $( "[id$=tabs]" ).tabs(settings);
+    $( "[id$=tabs]" )
+        /**
+         * initialize all accordion elements by id ending in 'accordion'
+         * @name Tabs
+         * @type {tabs}
+         * @implements $.ui
+         * @member
+         */
+        .tabs(settings);
 
-    $( "[id$=Accordion]" ).accordion({
-        width: 550,
-        animate: "easeInOutQuint",
-        heightStyle: 'content',
-        collapsible: true,
-        active: false
-    });
+    $( "[id$=Accordion]" )
+        /**
+         * initialize all accordion elements by id ending in 'accordion'
+         * @name Accordions
+         * @type {accordion}
+         * @implements $.ui
+         * @member
+         */
+        .accordion({
+            width: 550,
+            animate: "easeInOutQuint",
+            heightStyle: 'content',
+            collapsible: true,
+            active: false
+        });
 
     // set a watch for additions/removal on the dom for select boxes (not including template)
     $("select[id*=Question]")
+        /**
+           Listens for additions/removal on the dom for question select boxes (not including template)
+         * @type {selectmenu}
+         * @implements $.ui
+         * @event module:admin#question_change
+         */
         .livequery(function(){
             // add validation
             $(this).closest('form').validate();
@@ -170,6 +217,12 @@ require([
 
     // set a watch for additions/removal on the dom for select boxes (not including template)
     $("select[id*=Category]:not([id*=temp])")
+        /**
+           Listens for additions/removal on the dom for category select boxes (not including template)
+         * @type {selectmenu}
+         * @implements $.ui
+         * @event module:admin#category_change
+         */
         .livequery(function(){
             // add validation
             $(this).closest('form').validate();
@@ -219,8 +272,14 @@ require([
             });
         });
 
-    // set watch for additions/removal on the dom for checkboxes (not including template)
     $("input[id*=CategoryChk]:not([id*=temp])")
+        /**
+         * Event Listener for category checkboxe
+         * Listens for additions/removal on the dom for checkboxes (not including template)
+         * @type {checkbox}
+         * @implements $.fn.livequery
+         * @event module:admin#checkbox_change
+         */
         .livequery(function(){
             $(this)
                 .change(function(event){
