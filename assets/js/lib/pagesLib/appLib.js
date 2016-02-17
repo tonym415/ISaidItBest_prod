@@ -98,7 +98,7 @@ define(['jquery','tooltipster'], function($) {
 
 
     /**
-     * @name app/appLib#navPages
+     * @name appLib#navPages
      * @readonly
      * @prop {string} key navPages.key
      * @prop {string} value navPages.value
@@ -120,7 +120,7 @@ define(['jquery','tooltipster'], function($) {
     };
 
     /**
-     * @name app/appLib#skillLevels
+     * @name appLib#skillLevels
      * @readonly
      * @prop {string} title
      * @prop {string} description
@@ -165,7 +165,7 @@ define(['jquery','tooltipster'], function($) {
     // rules div
     /**
      * @var tplRules
-     * @memberof app/appLib
+     * @memberof appLib
      * @desc template for site rules
      * @todo Move template string to site template html
      */
@@ -194,7 +194,7 @@ define(['jquery','tooltipster'], function($) {
 
 
     /**
-     * @memberof app/appLib
+     * @memberof appLib
      * @var txtFooter
      * @desc Visible footer text
      */
@@ -337,12 +337,65 @@ define(['jquery','tooltipster'], function($) {
         return time;
     };
 
+    /**
+     * This function take a key or array of keys to search an object for
+     * @memberof appLib
+     * @method objHasKeys
+     * @param {string|array} key|keylist key or list of keys to look for in an object
+     * @param {object} object object to search
+     * @returns {object} object contains status and array of missing keys
+     * @example
+     * // object to search
+     * {
+     *   "email": "lj14thechampion@gmail.com",
+     *   "first_name": "B'Liahl",
+     *   "last_name": "Detwiler",
+     *   "id": "905954012853806"
+     * }
+     *
+     * // keys list
+     * [
+        'email',
+        'first_name',
+        'last_name',
+        'birthday'
+        ]
+     *
+     * // result
+     * {
+     *   "status": false,
+     *   "missing": [
+     *      "birthday"
+     *    ]
+     * }
+     */
+    function objHasKeys(keys, object){
+        var retObj = {status: true, missing: []}
+        if (!Array.isArray(keys)){
+            keys = [keys]
+        }
+        $.each(keys, function(idx, val){
+            if (!object.hasOwnProperty(val)){
+                retObj['status'] = false;
+                retObj['missing'].push(val)
+            }
+        })
+        return retObj;
+    }
+
+    function getCookie(name) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }
     return {
+        getCookieByName: getCookie,
         navPages: navPages,
         skillLevels: skillLevels,
+        objHasKeys: objHasKeys,
         /**
         * @method getFooterText
-        * @memberof app/appLib
+        * @memberof appLib
         * @see {@link txtFooter}
         * @see {@link app/appLogin~tplRules}
         */

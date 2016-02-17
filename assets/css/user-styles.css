@@ -2,7 +2,7 @@
 body {
     margin: 0;
     padding: 0;
-	font-family: "Arial";
+    font-family: "Arial";
     /*font-size: 85% !important;*/
     border: 0 !important;
 }
@@ -57,22 +57,40 @@ body > #container { height: auto; min-height: 98%; }
     cursor: pointer;
 }
 .resultsfooter {
+    right: 5em;
     clear: both;
     position: relative;
     z-index: 10;
-    /*height: 3em;
-    margin-top: 5em;*/
     text-align: center;
 }
 
+.btnLogin {
+    top: 1em;
+}
+.fbLoginBtn {
+    background: url(../css/images/fbLogin.png) no-repeat;
+    width: 244px;
+    height: 50px;
+}
+
+.fbShareBtn {
+    margin-left: 3em;
+    background: url(../css/images/fb-share-button.png);
+    width: 90px;
+    height: 23px;
+}
+
+.winnerInfo {
+     margin: 0 auto;
+}
 .winnerDiv {
-  /* padding: 50px; 
-  text-align: center;*/
+  border-radius: 1em;
   width: 11.4em;
   box-shadow: 10px 10px 5px #888888;
 }
 
 .winnerTitle {
+  border-radius: 1em;
   background-color: rgba(47, 241, 9, 0.58);
   text-align: center
 }
@@ -81,7 +99,7 @@ body > #container { height: auto; min-height: 98%; }
   background-image: inherit;
 }
 dt {
-	font-weight: bold;
+    font-weight: bold;
     font-style: italic;
 }
 dd {
