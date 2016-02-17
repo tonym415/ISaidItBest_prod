@@ -8,6 +8,7 @@
 define(['jquery', 'validate', 'app', 'jqueryUI', 'cookie'], function($, validate, app){
     // app.init('home');
 
+
     var user = app.getCookie('user');
     if (user !== undefined){
         // if same session USERNAME should be set

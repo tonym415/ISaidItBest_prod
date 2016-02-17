@@ -31,6 +31,7 @@ requirejs.config({
             // if the CDN location fails, load from this location
             'plugins/jquery.validate'
         ],
+        html2canvas: 'plugins/html2canvas',
         additional_methods: 'plugins/additional-methods',
         // pluginss
         livequery: 'plugins/jquery.livequery',

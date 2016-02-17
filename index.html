@@ -71,8 +71,10 @@
     <div class='text-content'>
     <h2>Debate other people, so that you can win money and brag to your friends.</h2>
     </div>
-    <!-- <fb:login-button scope="public_profile,email" onlogin="checkLoginState();"> </fb:login-button>
-    <div id="status" class='hidden'> </div> -->
+    <div class="fb-login-button btnLogin" data-max-rows="2" data-scope="public_profile,email,user_friends" data-size="large" data-auto-logout-link="true"></div>
+    <div id='btnTest' class="center-content no-display">
+        <input type='button' value='Test FB' id='fbCall'/><br>
+    </div>
     <script data-main="assets/js/common" src="assets/js/lib/require.js"></script>
     <script>
         require(['common','pages/main']);

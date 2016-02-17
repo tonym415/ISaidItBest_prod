@@ -288,9 +288,17 @@ require([
         });
 
     // ...more page set up
-    // load form with player information
+    /**
+     *
+     * Load form with player information
+     * @method <anonymous>
+     */
     (function(){
-        fdata = {'function': 'GUP', 'id':'getUser', 'user_id': user.user_id };
+        /**
+         * Ajax data
+         * @enum {object}
+         */
+        var fdata = {'function': 'GUP', 'id':'getUser', 'user_id': user.user_id };
         $.ajax({
             url: app.engine,
             data: fdata,
@@ -299,7 +307,6 @@ require([
                 if (result.data !== undefined){
                     avInit = false;
                     $.each(result.data, function(key, value){
-                        // element = $("input[name='" + key + "']");
                         if (key === 'avatar'){
                             initAvatar();
                         }else{

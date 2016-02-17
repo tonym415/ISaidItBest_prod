@@ -14,6 +14,7 @@ require([
     'jqueryUI',
     'livequery',
     'cookie',
+    'html2canvas',
     'blockUI'
 ], function($, app, lib){
     // game parameters global var
@@ -35,12 +36,7 @@ require([
     app.init('game');
     user = app.getCookie('user');
 
-    /**
-     * Add event to enable test buttons on page
-     * @event module:game#document_test_click
-     * @TODO following event must be commented for production
-     */
-    $(document).on('click', '.test', function(){
+       $(document).on('click', '.test', function(){
         app.toggleTestButtons();
     });
 
@@ -515,50 +511,238 @@ require([
 
         // build winner info
         var obj = lib.getWinner(users);
-        strWinnerVote ='<p><b>{0}</b>, with <i>{1}</i> votes, won {2} credits</div></p>';
+        strWinnerVote ='<p><b>{0}</b>, with <i>{1}</i> votes, won {2} {3}</div></p>';
         strVote ='<span><b>{0}</b>, with <i>{1}</i> votes</span>';
-        var winner = $('<div />')
-        .addClass('winnerDiv')
-        .append(
-            $('<div />')
-            .addClass('winnerTitle')
-            .html('<b><i>Winner</i></b>'),
-            $('<img src="/assets/avatars/' + obj.winner.avatar + '" class="avatar_large" />'),
-            $($.validator.format(strWinnerVote, [obj.winner.username, obj.winner.votes, obj.pot]))
-        );
 
         // display winner info
         $(resultPanel).click();
-        $('#results_panel').find("p").remove();
-        $('#results_footer')
-        .before( $('<p />').append(winner));
-
-        // display the rest of the players
-        // $.each(users, function(){
-        //      if (this.user_id !== obj.winner.user_id){
-        //          $('#results_footer')
-        //              .before(
-        //                  $('<div />')
-        //                      .append(
-        //                          $('<img src="/assets/avatars/' + this.avatar + '" class="avatar_icon" />'),
-        //                          $($.validator.format(strVote, [this.username, this.votes]))
-        //                      )
-        //              );
-        //      }
-        // });
+        // clear existing data
+        var titleData = [
+            obj.winner.username,
+            obj.winner.votes,
+            obj.pot,
+            "dollar".pluralize(obj.pot)
+        ];
+        $('.winnerInfo')
+            .empty()
+            .load('templates.html .winnerDiv',function(){
+                 $(".winnerTitle img").prop('src', '/assets/avatars/' + obj.winner.avatar);
+                 $(".winnerTitle p").html($.validator.format(strWinnerVote, titleData));
+            });
 
         resTitle = (obj.winner.user_id == user.user_id) ? "Congratulations!!! You won!" : "Maybe next time";
-        $('#results_footer').html(resTitle);
         $('#results_footer')
-        .append(
-            $('<p />')
-            .append(
-                $('<a />')
-                .prop('href', app.pages.game)
-                .html('Play Again?')
-            )
-        );
+            .prepend(
+              $('<h2>')
+                .text("")
+                .text(resTitle)
+           );
+
+        $('#results_footer a').prop('href', app.pages.game)
     }
+
+    /* Handle Facebook sharing */
+
+    /**
+     * Add event for fb sharing
+     * @event game#fb_share
+     */
+    $(".fbShareBtn").on('click', shareGameResult);
+
+    // This bit is important.  It detects/adds XMLHttpRequest.sendAsBinary.  Without this
+    // you cannot send image data as part of a multipart/form-data encoded request from
+    // Javascript.  This implementation depends on Uint8Array, so if the browser doesn't
+    // support either XMLHttpRequest.sendAsBinary or Uint8Array, then you will need to
+    // find yet another way to implement this.
+
+    // from: http://stackoverflow.com/a/5303242/945521
+
+    if ( XMLHttpRequest.prototype.sendAsBinary === undefined  ) {
+        XMLHttpRequest.prototype.sendAsBinary = function(string) {
+            var bytes = Array.prototype.map.call(string, function(c) {
+                return c.charCodeAt(0) & 0xff;
+            });
+            this.send(new Uint8Array(bytes).buffer);
+        };
+    }
+
+    // This function takes an array of bytes that are the actual contents of the image file.
+    // In other words, if you were to look at the contents of imageData as characters, they'd
+    // look like the contents of a PNG or GIF or what have you.  For instance, you might use
+    // pnglib.js to generate a PNG and then upload it to Facebook, all from the client.
+    //
+    // Arguments:
+    //   authToken - the user's auth token, usually from something like authResponse.accessToken
+    //   filename - the filename you'd like the uploaded file to have
+    //   mimeType - the mime type of the file, eg: image/png
+    //   imageData - an array of bytes containing the image file contents
+    //   message - an optional message you'd like associated with the image
+
+    function postImageToFacebook( authToken, filename, mimeType, imageData, message  )
+    {
+    // this is the multipart/form-data boundary we'll use
+    var boundary = '----ThisIsTheBoundary1234567890';
+
+    // let's encode our image file, which is contained in the var
+    var formData = '--' + boundary + '\r\n'
+    formData += 'Content-Disposition: form-data; name="source"; filename="' + filename + '"\r\n';
+    formData += 'Content-Type: ' + mimeType + '\r\n\r\n';
+    for ( var i = 0; i < imageData.length; ++i  )
+    {
+    formData += String.fromCharCode( imageData[ i  ] & 0xff  );
+
+    }
+    formData += '\r\n';
+    formData += '--' + boundary + '\r\n';
+    formData += 'Content-Disposition: form-data; name="message"\r\n\r\n';
+    formData += message + '\r\n'
+    formData += '--' + boundary + '--\r\n';
+
+    var xhr = new XMLHttpRequest();
+    xhr.open( 'POST', 'https://graph.facebook.com/me/photos?access_token=' + authToken + '&debug=all', true  );
+    xhr.onload = xhr.onerror = function() {
+    app.dMessage('Error', xhr.responseText  );
+
+    };
+    xhr.setRequestHeader( "Content-Type", "multipart/form-data; boundary=" + boundary  );
+    xhr.sendAsBinary( formData  );
+
+    }
+
+    function dataURItoBlob(dataURI,mime) {
+        var BASE64_MARKER = ';base64,';
+        var base64Index = dataURI.indexOf(BASE64_MARKER);
+        dataURI = dataURI.substring(base64Index + BASE64_MARKER.length);
+        var byteString = window.atob(dataURI);
+        var ia = new Uint8Array(byteString.length);
+        for (var i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+
+        }
+        return new Blob([ia], { type: mime  });
+
+    }
+
+    function publishOnFacebook1(imageData, mimeType){
+        var blob = dataURItoBlob(imageData,mimeType);
+        FB.getLoginStatus(function(response){
+            if (response.authResponse){
+            //facebook set up
+                FB.ui(
+                    'me/objects/game',
+                    'post',
+                    {'object': {
+                        'og:url': 'http://samples.ogp.me/163382137069945',
+                        'og:title': 'Sample Game',
+                        'og:type': 'game',
+                        'og:image': blob,
+                        'og:description': 'Sample Game Description',
+                        'fb:app_id': '1518603065100165'
+                        }
+                    },
+                    function(response){
+                        app.dMessage("Success", response);
+                    }
+                );
+                var fd = new FormData();
+                fd.append("access_token",FB.getAuthResponse()['accessToken']);
+                fd.append("source", blob);
+                fd.append("message",$('.winnerTitle p:first').text());
+
+               //$.ajax({
+                    //url:'https://graph.facebook.com/v2.5/me/photos',
+                    //type:"POST",
+                    //data:fd,
+                    //processData:false,
+                    //contentType:false,
+                    //cache:false,
+                    //success: function(){
+                        //app.dMessage("Success", "Posted to Facebook");
+                    //},
+                    //error: function(e){
+                        //app.dMessage(e.name ,e.message);
+                        ////on error fall back to the hacked method
+                        //publishOnFacebook(imageData);
+                   //}
+                //});
+            }
+        });
+    }
+
+    function publishOnFacebook(data) {
+        var message = $('.winnerTitle p:first').text();
+        var encodedPng = data.substring(data.indexOf(',') + 1, data.length);
+        var decodedPng = atob(encodedPng);
+        var fileName = "generated_image";
+        FB.getLoginStatus(function(response){
+            if (response.authResponse){
+                postImageToFacebook(
+                    FB.getAuthResponse()['accessToken'],
+                    fileName,
+                    "image/png",
+                    decodedPng,
+                    message
+                );
+                alert("Posted to Facebook!");
+                app.dMessage("Success", "Posted to Facebook");
+            } else {
+                app.dMessage("error", 'User cancelled login or did not fully authorize.' );
+            }
+        });
+    }
+
+    function shareGameResult(){
+       //facebook set up
+
+        FB.getLoginStatus(function(response){
+            if (response.authResponse){
+                FB.ui({
+                    method: 'share_open_graph',
+                    action_type: 'isaiditbest:win',
+                    action_properties: JSON.stringify({
+                        game: window.location.href,
+                        url: "https://www.Isaiditbest.com",
+                        message: $('.winnerTitle').text(),
+                    })
+                },function(response){
+                     post = response;
+                     msgOpt = {
+                            buttons: {
+                                Yes: function(){
+                                    FB.api(
+                                        "/" + post.post_id,
+                                        "DELETE",
+                                        function(response){
+                                            console.log("DELETE POST");
+                                            console.log(response);
+                                        }
+                                    )
+                                    $(this).dialog('close');
+                                },
+                                No: function(){ $(this).dialog('close'); }
+                            }
+                    }
+                     app.dMessage("Remove Post?", post, msgOpt);
+                },{access_token: FB.getAuthResponse()['accessToken'] }
+                );
+            }
+        });
+        return true;
+    }
+
+    function shareCanvas(){
+        //get canvas image
+        html2canvas($('#winner'), {
+            logging: true,
+            width: 200,
+            height: 200
+        }).then(function(canvas){
+            mimeType = "image/png";
+            data = canvas.toDataURL(mimeType);
+            publishOnFacebook1(data,mimeType);
+        })
+    }
+
 
 
 

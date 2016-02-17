@@ -116,8 +116,9 @@ define([
         }
 
         // jquery-fy page with Page Stylings
-        $("input[type=submit]").button();
-        $("input[type=button]").button();
+        var btnSettings = {'width': '9em'};
+        $("input[type=submit]").button(btnSettings);
+        $("input[type=button]").button(btnSettings);
 
         // final page setup
         // add event listener for logout
@@ -180,13 +181,11 @@ define([
             // create test button dialog
               if (testBtnDialog === undefined){
                   btnContainer.toggleClass('no-display');
-                  $('.test').html("TEST TOGGLE");
                   testBtnDialog = btnContainer.dialog({
                       title: "Test Buttons",
                       dialogClass: 'no-close',
-                      height: 200,
-                      width: 800,
-                      modal: true,
+                      //height: 200,
+                      //width: 800,
                       hide: { effect: "fade", duration: 300 },
                       show: { effect: "fade", duration: 300 },
                       buttons: [{
@@ -200,6 +199,7 @@ define([
             }else{
                 testBtnDialog.dialog('open');
             }
+           $('.test').html("TEST TOGGLE");
         }
     }
 
@@ -327,11 +327,64 @@ define([
     function getAvatar(avFilespec){
         if (avFilespec === undefined){
             info = getCookie('user');
+            if (info.avatar.startsWith('https')) return info.avatar;
             return (info.avatar) ? '/assets/avatars/' + info.avatar : default_avatar;
         }else{
             return (avFilespec !== "") ? '/assets/avatars/' + avFilespec : default_avatar;
         }
     }
+
+    /**
+     * Handles logging user into the system based on facebook authentication
+     * Post FB login procedures
+     * @method fbLogin
+     */
+    function fbLogin(response){
+        /** send info to db */
+        if (response.status === 'connected'){
+
+            var queryFields = {fields : [
+                'email',
+                'first_name',
+                'last_name',
+                'birthday'
+            ]}
+            FB.api('/me', queryFields,  function(response){
+                // ensure all queried params are accounted for
+                verified = lib.objHasKeys(queryFields.fields, response)
+                //console.log(JSON.stringify(verified));
+                if ($.inArray('email',verified.missing) > -1){
+                    FB.login(
+                        function(response){
+                            console.log(response);
+                        },{scope: 'email', auth_type: 'rerequest'}
+                    );
+                }
+
+                //add server side params
+                response.fb_id = response.id;
+                response.id = 'fbLogin';
+                response.function = "userFunctions"
+                $.ajax({
+                    desc: 'Login FB User',
+                    data: response,
+                    type: "POST",
+                    url: app_engine
+                    })
+                    .done(function(data, textStatus, jqXHR){
+                        // check return data for server issues
+                        if (typeof(data) === 'object'){
+                            info = data[0]
+                            app.setCookie('user',info);
+                            window.location.assign(app.pages.game);
+                        }else if (typeof(data) === 'string'){
+                            app.dMessage('Error', data)
+                        }
+                    });
+            })
+        }
+    }
+
 
     /**
      * Logout
@@ -341,12 +394,18 @@ define([
         app = this;
         $('.logout').on('click', function(e){
             e.preventDefault();
-            $.setCookie('user',null);
+            $.cookie('fb_id',null);
+            $.cookie('user',null);
+            $.removeCookie('fb_id');
             $.removeCookie('user');
+            FB.logout();
             window.location.assign(app.pages.home);
         });
     }
 
+    function fbStatusChange(){
+        console.log("changes to fb status")
+    }
     /**
      *  Uses parameter to appropriately set the navigation bar
      * See {@link module:app/appLib~navPages} for param (page) reference
@@ -541,7 +600,7 @@ $(document)
         $.cookie("theme", theme);
 
         cook_theme = $.cookie('theme');
-        var theme_url = "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/themes/" + theme + "/jquery-ui.css";
+        var theme_url = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/themes/" + theme + "/jquery-ui.css";
         $('head').append('<link href="'+ theme_url +'" rel="Stylesheet" type="text/css" />');
     }
 
@@ -705,18 +764,7 @@ $(document)
        };
     }
 
-    // usersnap code for bug reporting
-    (function() {
-        var s = document.createElement("script");
-        s.type = "text/javascript";
-        s.async = true;
-        s.src = '//api.usersnap.com/load/'+
-                '1135d21c-f848-4993-a9cb-fe7141f4cac2.js';
-        var x = document.getElementsByTagName('script')[0];
-        x.parentNode.insertBefore(s, x);
-    })();
-
-    /* handles toggle between login and reset password panels */
+       /* handles toggle between login and reset password panels */
     function toggleSignIn(){ $("#login-tab, #reset-tab").toggle(); }
 
 
@@ -935,6 +983,7 @@ $(document)
             if (status != 'error'){
                 // hide password reset panel by default
                 $("#reset-tab").toggle();
+                $(".fb-login-button").appendTo('.loginButtonWrapper');
                 $(".modal-container")
                     .tabs({
                         beforeActivate: function(event, ui){
@@ -974,22 +1023,136 @@ $(document)
      * and determins whether to create login dialog and which tab to open
      * @event module:appModule#document_main-nav_click
      */
-    $(document).on('click', '.main-nav',function(event){
-        user = app.getCookie('user');
-        signup = $(event.target).is('.cd-signup');
-        if (signup) app.agreement();
+    $(document)
+        /**
+         * Add event to enable test buttons on page
+         * @event module:game#document_test_click
+         * @TODO following event must be commented for production
+         */
+        .on('click', '.test', function(){ app.toggleTestButtons(); })
+        .on('click', '.main-nav',function(event){
+            user = app.getCookie('user');
+            signup = $(event.target).is('.cd-signup');
+            if (signup) app.agreement();
 
-        signin = $(event.target).is('.cd-signin');
-        // function helper to show signin panel
-        if (signup || signin){
-            index = (signup) ? 1 : 0;
-            // if the signup element has not been created
-            if (!$('.modal-container').length){
-                createLoginDialog();
-            }else{
-                app.showLoginDialog(index);
+            signin = $(event.target).is('.cd-signin');
+            // function helper to show signin panel
+            if (signup || signin){
+                index = (signup) ? 1 : 0;
+                // if the signup element has not been created
+                if (!$('.modal-container').length){
+                    createLoginDialog();
+                }else{
+                    app.showLoginDialog(index);
+                }
             }
-        }
     });
+
+    // FACEBOOK FUNCTIONS
+    /**
+     * Adds script tag to import Facebook's Javascript SDK
+     * @method getFacebook
+     */
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=1518603065100165";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+
+    // This is called with the results from from FB.getLoginStatus().
+    function statusChangeCallback(response) {
+        // The response object is returned with a status field that lets the
+        // app know the current login status of the person.
+        // Full docs on the response object can be found in the documentation
+        // for FB.getLoginStatus().
+        if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            //t
+            //testAPI();
+            return true;
+        } else if (response.status === 'not_authorized') {
+            // The person is logged into Facebook, but not your app.
+            app.dMessage("Login", "Please login to this app");
+            //document.getElementById('status').innerHTML = 'Please log ' +
+            //'into this app.';
+            return false;
+        } else {
+            // The person is not logged into Facebook, so we're not sure if
+            // they are logged into this app or not.
+                        //document.getElementById('status').innerHTML = 'Please log ' +
+            //'into Facebook.';
+            return false;
+        }
+    }
+
+     /**
+    * This function is called when someone finishes with the Login
+    * Button.  See the onlogin handler attached to it in the sample
+    * code below.
+    * @method
+    */
+    function checkLoginState() {
+        return FB.getLoginStatus(function(response) {
+            return statusChangeCallback(response);
+        });
+    }
+
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '1518603065100165',
+            cookie     : true,  // enable cookies to allow the server to access the session
+            xfbml      : true,  // parse social plugins on this page
+            version    : 'v2.5' // use version 2.2
+        });
+
+
+    /**
+     Now that we've initialized the JavaScript SDK, we call
+     FB.getLoginStatus().  This function gets the state of the
+     person visiting this page and can return one of three states to
+     the callback you provide.  They can be:
+
+     1. Logged into your app ('connected')
+     2. Logged into Facebook, but not your app ('not_authorized')
+     3. Not logged into Facebook and can't tell if they are logged into
+        your app or not.
+         These three cases are handled in the callback function.
+     */
+        FB.getLoginStatus(function(response) {
+            return statusChangeCallback(response);
+        });
+    // bind FB events to site
+    FB.Event.subscribe('auth.login', function(response){ fbLogin(response)});
+    FB.Event.subscribe('auth.logout', logout);
+    //FB.Event.subscribe('auth.statusChange', fbStatusChange);
+
+    };
+
+    /**
+        Here we run a very simple test of the Graph API after login is
+        successful.  See statusChangeCallback() for when this call is made.
+    */
+    function testAPI() {
+        console.log('Welcome!  Fetching your information.... ');
+        FB.api('/me', function(response) {
+            console.log('Successful login for: ' + response.name);
+            console.log('Thanks for logging in, ' + response.name + '!');
+        });
+    }
+
+    app.getCookieByName = function(name){
+        var re = new RegExp(name + "=([^;]+)");
+        var value = re.exec(document.cookie);
+        return (value != null) ? unescape(value[1]) : null;
+    };
+
+    app.fbLogin = fbLogin;
+    app.checkLoginState = checkLoginState;
+    app.statusChangeCallback = statusChangeCallback;
+    app.testAPI = testAPI;
+
     return app;
 });
